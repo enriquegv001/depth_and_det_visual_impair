@@ -17,8 +17,8 @@ dist = distutils.core.run_setup("./detectron2/setup.py")
 #command = f"python -m pip install {' '.join([f"{x}" for x in dist.install_requires])}"
 #os.system(command)
 
-command = f"python -m pip install {' '.join([f'"{x}"' for x in dist.install_requires])}"
-os.system(command)
+#command = f"python -m pip install {' '.join([f'"{x}"' for x in dist.install_requires])}"
+#os.system(command)
 
 command = f"python -m pip install {' '.join([x for x in dist.install_requires])}"
 os.system(command)

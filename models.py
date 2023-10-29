@@ -484,7 +484,8 @@ class Midas:
                 break
 
 
-
+import os 
+os.system('pip install gtts')
 from gtts import gTTS #Import Google Text to Speech
 from IPython.display import Audio #Import Audio method from IPython's Display Class
 
