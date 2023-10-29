@@ -14,8 +14,20 @@ os.system(f"git clone 'https://github.com/facebookresearch/detectron2'")
 dist = distutils.core.run_setup("./detectron2/setup.py")
 
 # Assuming dist.install_requires is a list of strings
-command = f"python -m pip install {' '.join([f'{x}' for x in dist.install_requires])}"
+#command = f"python -m pip install {' '.join([f"{x}" for x in dist.install_requires])}"
+#os.system(command)
+
+command = f"python -m pip install {' '.join([f'"{x}"' for x in dist.install_requires])}"
 os.system(command)
+
+command = f"python -m pip install {' '.join([x for x in dist.install_requires])}"
+os.system(command)
+
+import subprocess
+
+# Assuming dist.install_requires is a list of strings
+command = ["python", "-m", "pip", "install"] + dist.install_requires
+subprocess.run(command, check=True)
 
 sys.path.insert(0, os.path.abspath('./detectron2'))
 #os.system('pip install fvcore')
