@@ -775,14 +775,14 @@ class MobileCam(Midas, Detector):
           [text.append(p[0] + ' '+ p[1] + ' ') for p in r_n]
 
         text = ', '.join(text)
-        print(text)
+        #print(text)
         # Text to speech automatic play
         tts = gTTS(text) #Provide the string to convert to speech
         tts.save('1.wav') #save the string converted to speech as a .wav file
         sound_file = '1.wav'
-        Audio(sound_file, autoplay=True)
-        cv2.waitKey(3)
-        print('el texto ya se dijo')
+        return Audio(sound_file, autoplay=True)
+        #cv2.waitKey(3)
+        #print('el texto ya se dijo')
 
 
 
