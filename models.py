@@ -3,7 +3,7 @@ from VideoStreamColab import js_to_image, bbox_to_bytes, video_stream, video_fra
 
 
 from setup import call_midas_model
-midas_model, transform = call_midas_model()
+#midas_model, transform, device = call_midas_model()
 
 # Detectron.py
 # Class reference from https://github.com/evanshlom/detectron2-panoptic-segmentation-video/blob/main/Detector.py
@@ -127,7 +127,7 @@ class Detector:
 
         # display with filter per hierarchy
         #output = viz.draw_panoptic_seg_predictions(pred_arr.to("cpu"), segmentInfo_)
-        cv2_imshow(output.get_image()[:,:,::-1])
+        #cv2_imshow(output.get_image()[:,:,::-1])
 
         return pred_arr, pred_hierarchy, Info_with_label
 
@@ -383,7 +383,7 @@ class Midas:
       #plt.imshow(proximity_out)
       #img_dis = (proximity_out/256).astype(np.uint8)
       #cv2.applyColorMap(img_dis, cv2.COLORMAP_PLASMA)
-      cv2_imshow(img_dis)
+      #cv2_imshow(img_dis)
       return proximity_out
 
       """
@@ -593,7 +593,6 @@ class MobileCam(Midas, Detector):
     tts.save('1.wav') #save the string converted to speech as a .wav file
     sound_file = '1.wav'
 
-    cv2.waitKey(3)
     #print('el texto ya se dijo')
     return Audio(sound_file, autoplay=True)
 
