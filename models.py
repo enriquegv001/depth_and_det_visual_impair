@@ -333,9 +333,10 @@ import numpy as np
 
 
 class Midas:
-  def __init__(self, model_att, trans_processing):
+  def __init__(self, model_att, trans_processing, device):
     self.model_att = model_att
     self.trans_processing = trans_processing
+    self.device = device
 
   def onImage_m(self, imagePath):
       # load image and apply transformers
@@ -343,7 +344,7 @@ class Midas:
       start_time = time.time()
       img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
       #print('trans pross:' , self.trans_processing)
-      input_batch = self.trans_processing(img).to(device)
+      input_batch = self.trans_processing(img).to( self.device)
 
       # Predict and resize to original
       with torch.no_grad():
@@ -401,7 +402,7 @@ class Midas:
       start_time = time.time()
       img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
       #print('trans pross:' , self.trans_processing)
-      input_batch = self.trans_processing(img).to(device)
+      input_batch = self.trans_processing(img).to(self.device)
 
       # Predict and resize to original
       with torch.no_grad():
@@ -490,8 +491,8 @@ from gtts import gTTS #Import Google Text to Speech
 from IPython.display import Audio #Import Audio method from IPython's Display Class
 
 class MobileCam(Midas, Detector):
-  def __init__(self, midas_model_att, trans_processing, model_type):
-    Midas.__init__(self, midas_model_att, trans_processing)
+  def __init__(self, midas_model_att, trans_processing, device, model_type):
+    Midas.__init__(self, midas_model_att, trans_processing, device)
     Detector.__init__(self, model_type)
     self.model_type = Detector.get_attributes(self)
 

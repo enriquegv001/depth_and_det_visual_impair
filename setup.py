@@ -72,4 +72,4 @@ def call_midas_model():
         transform = midas_transforms.dpt_transform
     else:
         transform = midas_transforms.small_transform
-    return midas_model, transform
+    return midas_model, transform, device

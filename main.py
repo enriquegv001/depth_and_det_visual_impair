@@ -5,6 +5,6 @@ if __name__=="__main__":
     #mymodel = MobileCam(midas_model, transform, 'PS')
     #mymodel.MultOut_RealTime(False)
 
-    midasmod, trans = call_midas_model()
-    mymodel = MobileCam(midas_model, transform, 'PS')
+    midas_model, transform, device = call_midas_model()
+    mymodel = MobileCam(midas_model, transform, device, 'PS')
     mymodel.MultOut_img("dog.jpg")
