@@ -781,6 +781,7 @@ class MobileCam(Midas, Detector):
         tts.save('1.wav') #save the string converted to speech as a .wav file
         sound_file = '1.wav'
         return Audio(sound_file, autoplay=True)
+        
         #cv2.waitKey(3)
         #print('el texto ya se dijo')
 
