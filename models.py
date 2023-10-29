@@ -2,6 +2,8 @@
 from VideoStreamColab import js_to_image, bbox_to_bytes, video_stream, video_frame
 
 
+from setup import call_midas_model
+midas_model, transform = call_midas_model()
 
 # Detectron.py
 # Class reference from https://github.com/evanshlom/detectron2-panoptic-segmentation-video/blob/main/Detector.py
@@ -11,7 +13,8 @@ from detectron2.data import MetadataCatalog
 from detectron2.utils.visualizer import ColorMode, Visualizer
 from detectron2 import model_zoo
 import inspect
-from setup import midas_model, transform
+
+
 
 import torch
 

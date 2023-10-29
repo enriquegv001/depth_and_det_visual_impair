@@ -12,7 +12,8 @@ import io
 import html
 import time
 import matplotlib.pyplot as plt
-%matplotlib inline
+import os
+os.system('matplotlib inline')
 
 """
 # import darknet functions to perform object detections
@@ -76,7 +77,7 @@ def bbox_to_bytes(bbox_array):
   return bbox_bytes
 
 def video_stream():
-  js = Javascript(
+  js = Javascript('''
     var video;
     var div = null;
     var stream;
@@ -202,7 +203,7 @@ def video_stream():
               'capture': Date.now() - preCapture,
               'img': result};
     }
-    )
+    ''')
 
   display(js)
 
