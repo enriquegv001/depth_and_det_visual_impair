@@ -18,7 +18,7 @@ command = f"python -m pip install {' '.join([f'{x}' for x in dist.install_requir
 os.system(command)
 
 sys.path.insert(0, os.path.abspath('./detectron2'))
-
+os.system('pip install fvcore')
 sys.path.append("/path/to/your/cloned/repo")
 import detectron2
 from detectron2.engine import DefaultPredictor
