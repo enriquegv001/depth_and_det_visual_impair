@@ -599,7 +599,7 @@ class MobileCam(Midas, Detector):
     vr_vn_len = len(vr_vn) > 0
     if vr_vn_len:
       text.append('\nprecaución acercándose a')
-      #[print(p[0] + ' '+ p[1] + ', ') for p in vr_vn]
+      #[print(p[0] + ' '+ p[1] + ' ') for p in vr_vn]
       [text.append(p[0] + ' '+ p[1] + ' ') for p in vr_vn]
 
     if len(r_vn) > 0:
@@ -617,15 +617,13 @@ class MobileCam(Midas, Detector):
         text.append('\npróximamente')
       [text.append(p[0] + ' '+ p[1] + ' ') for p in r_n]
 
+    # Text to speech automatic play
     text = ', '.join(text)
     #print(text)
-    # Text to speech automatic play
-    tts = gTTS(text) #Provide the string to convert to speech
-    tts.save('1.wav') #save the string converted to speech as a .wav file
+    tts = gTTS(text=text, lang='es') 
+    tts.save('1.wav') 
     sound_file = '1.wav'
-
-    #print('el texto ya se dijo')
-    return Audio(sound_file, autoplay=True, language = 'es')
+    return Audio(sound_file, autoplay=True)
 
 
     """
@@ -787,7 +785,7 @@ class MobileCam(Midas, Detector):
         vr_vn_len = len(vr_vn) > 0
         if vr_vn_len:
           text.append('\nprecaución acercándose a')
-          #[print(p[0] + ' '+ p[1] + ', ') for p in vr_vn]
+          #[print(p[0] + ' '+ p[1] + ' ') for p in vr_vn]
           [text.append(p[0] + ' '+ p[1] + ' ') for p in vr_vn]
 
         if len(r_vn) > 0:
@@ -805,33 +803,16 @@ class MobileCam(Midas, Detector):
             text.append('\npróximamente')
           [text.append(p[0] + ' '+ p[1] + ' ') for p in r_n]
 
+        # Text to speech automatic play
         text = ', '.join(text)
         #print(text)
-        # Text to speech automatic play
         tts = gTTS(text=text, lang='es') 
-
-        """
-        # Save the audio as a temporary file (default format is mp3)
-        temp_audio_file = "temp_audio.mp3"
-        tts.save(temp_audio_file)
-        # Save the audio as a temporary file (default format is mp3)
-        temp_audio_file = "temp_audio.mp3"
-        tts.save(temp_audio_file)
-        # Load the mp3 file and save it as WAV format
-        audio = AudioSegment.from_mp3(temp_audio_file)
-        output_audio_file = "spanish_audio_file.wav"
-        audio.export(output_audio_file, format="wav")
-
-        # Clean up: delete the temporary mp3 file
-        import os
-        os.remove(temp_audio_file)
-        """
-        tts.save('1.wav') #save the string converted to speech as a .wav file
+        tts.save('1.wav') 
         sound_file = '1.wav'
         return Audio(sound_file, autoplay=True)
         
         #cv2.waitKey(3)
-        #print('el texto ya se dijo')
+
 
 
 
