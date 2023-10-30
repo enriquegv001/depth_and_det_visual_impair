@@ -171,10 +171,10 @@ class Detector:
       """
 
       # set the class label and class heirarchy inside segmentInfo
-      stuff_hierarchy = {'things': 1, 'banner': 1, 'blanket': 2, 'bridge': 1, 'cardboard': 1, 'counter': 1, 'curtain': 2, 'door-stuff': 1, 'floor-wood': 2, 'flower': 3, 'fruit': 2, 'gravel': 3, 'house': 3, 'light': 3, 'mirror-stuff': 1, 'net': 2, 'pillow': 2, 'platform': 1, 'playingfield': 3, 'railroad': 1, 'river': 1, 'road': 1, 'roof': 3, 'sand': 3, 'sea': 3, 'shelf': 1, 'snow': 1, 'stairs': 1, 'tent': 1, 'towel': 2, 'wall-brick': 1, 'wall-stone': 1, 'wall-tile': 1, 'wall-wood': 1, 'water': 1, 'window-blind': 1, 'window': 1, 'tree': 3, 'fence': 1, 'ceiling': 3, 'sky': 3, 'cabinet': 1, 'table': 1, 'floor': 3, 'pavement': 3, 'mountain': 3, 'grass': 3, 'dirt': 3, 'paper': 2, 'food': 2, 'building': 1, 'rock': 1, 'wall': 1, 'rug': 2}
+      stuff_hierarchy = {'objetos': 1, 'letrero': 1, 'sábana': 3, 'puente': 2, 'cartón': 3, 'mostrador': 1, 'cortina': 2, 'puerta': 1, 'piso de madera': 3, 'flor': 3, 'fruta': 3, 'grava': 3, 'casa': 3, 'luz': 3, 'espejo': 1, 'red': 2, 'almohada': 2, 'plataforma': 1, 'cancha de juego': 3, 'ferrocarril': 1, 'río': 1, 'camino': 1, 'tejado': 3, 'arena': 3, 'oceano': 3, 'concha': 3, 'nieve': 1, 'escalera': 1, 'tienda de campaña': 1, 'toalla': 3, 'pared de ladrillo': 1, 'pared de piedra': 1, 'pared de teja': 1, 'pared de madera': 1, 'agua': 1, 'persiana': 1, 'ventana': 1, 'árbol': 3, 'valla': 1, 'techo': 3, 'cielo': 3, 'gabinete': 1, 'mesa': 1, 'piso': 3, 'pavimento': 3, 'montaña': 3, 'pasto': 3, 'tierra': 3, 'papel': 3, 'comida': 3, 'construcción': 1, 'roca': 1, 'pared': 1, 'alfombra': 1}
       stuff_cat_id = {i: c for i, c in enumerate(metadata.stuff_classes)} # dict with index and classes
 
-      thing_hierarchy = {'person': 1, 'bicycle': 1, 'car': 1, 'motorcycle':1, 'airplane':3, 'bus':1, 'train':1, 'truck':1, 'boat':3, 'traffic light':2, 'fire hydrant':2, 'stop sign':2, 'parking meter':2, 'bench':2, 'bird':3, 'cat':1, 'dog':1, 'horse':1, 'sheep':1, 'cow':1, 'elephant':1, 'bear':1, 'zebra':1, 'giraffe':1, 'backpack':2, 'umbrella':2, 'handbag':2, 'tie':3, 'suitcase':2, 'frisbee':1, 'skis':2, 'snowboard':2, 'sports ball':2, 'kite':3, 'baseball bat':2, 'baseball glove':2, 'skateboard':1, 'surfboard':3, 'tennis racket':2, 'bottle':2, 'wine glass':2, 'cup':2, 'fork':2, 'knife':2, 'spoon':3, 'bowl':3, 'banana':3, 'apple':3, 'sandwich':3, 'orange':3, 'broccoli':3, 'carrot':3, 'hot dog':3, 'pizza':3, 'donut':3, 'cake':3, 'chair':2, 'couch':2, 'potted plant':3, 'bed':2, 'dining table':2, 'toilet':2, 'tv':3, 'laptop':3, 'mouse':3, 'remote':3, 'keyboard':3, 'cell phone':3, 'microwave':3, 'oven':2, 'toaster':2, 'sink':2, 'refrigerator':2, 'book':3, 'clock':3, 'vase':2, 'scissors':2, 'teddy bear':3, 'hair drier':3, 'toothbrush':3}
+      thing_hierarchy = {'persona': 1, 'bicicleta': 1, 'coche': 1, 'motocicleta':1, 'avión':3, 'autobus':1, 'tren':1, 'camioneta':1, 'bote':3, 'semáforo':2, 'hidratante':2, 'señalización de alto':2, 'parquímetro':2, 'banca':2, 'pájaro':3, 'gato':1, 'perro':1, 'caballo':1, 'oveja':1, 'vaca':1, 'elefante':1, 'oso':1, 'cebra':1, 'jirafa':1, 'mochila':2, 'sombrilla':2, 'maleta de mano':2, 'corbata':3, 'portafolio':2, 'frisbee':1, 'skis':2, 'snowboard':2, 'balón':2, 'cometa':3, 'bate de baseball':2, 'guante de baseball':2, 'patineta':1, 'tabla de surf':3, 'raqueta':2, 'botella':2, 'copa de vino':2, 'tasa':2, 'tenedor':2, 'cuchillo':2, 'cuchara':3, 'tasón':3, 'plátano':3, 'manzana':3, 'sandwich':3, 'naraja':3, 'broccoli':3, 'zanahoria':3, 'hot dog':3, 'pizza':3, 'dona':3, 'pastel':3, 'silla':2, 'sillón':2, 'maceta':3, 'cama':2, 'mesa de comedor':2, 'escusado':2, 'televisión':3, 'laptop':3, 'mouse':3, 'control remoto':3, 'teclado':3, 'celular':3, 'microondas':3, 'horno':2, 'tostador':2, 'lavabo':2, 'refrigerador':2, 'libro':3, 'reloj':3, 'jarrón':2, 'tijeras':2, 'oso de peluche':3, 'secadora de pelo':3, 'pasta de dientes':3}
       thing_cat_id = {i: c for i,c in enumerate(metadata.thing_classes)}
 
       for segment in segmentInfo:
@@ -543,9 +543,9 @@ class MobileCam(Midas, Detector):
         ] # quadrants
 
     # get the prediction for each label
-    quad_dict = {0: 'left top', 1: 'center top', 2: 'right top',
-                  3: 'middle left' , 4: 'middle center' , 5:'middle right' ,
-                  6:'down left' , 7: 'down center', 8: 'down right'}
+    quad_dict = {0: 'superior izquierda', 1: 'centro superior', 2: 'superior derecha',
+                      3: 'medio izquierda' , 4: 'medio centro' , 5:'medio derecha' ,
+                      6:'inferior izquierda' , 7: 'centro inferior', 8: 'inderior derecha'}
 
     # class unique class id
     id_dict = {l:np.array([]) for l in pred_id}
@@ -731,9 +731,9 @@ class MobileCam(Midas, Detector):
             ] # quadrants
 
         # get the prediction for each label
-        quad_dict = {0: 'left top', 1: 'center top', 2: 'right top',
-                      3: 'middle left' , 4: 'middle center' , 5:'middle right' ,
-                      6:'down left' , 7: 'down center', 8: 'down right'}
+        quad_dict = {0: 'superior izquierda', 1: 'centro superior', 2: 'superior derecha',
+                      3: 'medio izquierda' , 4: 'medio centro' , 5:'medio derecha' ,
+                      6:'inferior izquierda' , 7: 'centro inferior', 8: 'inderior derecha'}
 
         # class unique class id
         id_dict = {l:np.array([]) for l in pred_id}
