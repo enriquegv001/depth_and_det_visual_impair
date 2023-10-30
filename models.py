@@ -624,7 +624,7 @@ class MobileCam(Midas, Detector):
     sound_file = '1.wav'
 
     #print('el texto ya se dijo')
-    return Audio(sound_file, autoplay=True)
+    return Audio(sound_file, autoplay=True, language = 'es')
 
 
     """
@@ -810,7 +810,7 @@ class MobileCam(Midas, Detector):
         tts = gTTS(text) #Provide the string to convert to speech
         tts.save('1.wav') #save the string converted to speech as a .wav file
         sound_file = '1.wav'
-        return Audio(sound_file, autoplay=True)
+        return Audio(sound_file, autoplay=True, language='es')
         
         #cv2.waitKey(3)
         #print('el texto ya se dijo')
