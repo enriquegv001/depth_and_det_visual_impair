@@ -516,8 +516,9 @@ class Midas:
 
 
 import os 
-os.system('pip install gtts')
+os.system('pip install gtts pydub') 
 from gtts import gTTS #Import Google Text to Speech
+from pydub import AudioSegment
 from IPython.display import Audio #Import Audio method from IPython's Display Class
 
 class MobileCam(Midas, Detector):
@@ -807,15 +808,30 @@ class MobileCam(Midas, Detector):
         text = ', '.join(text)
         #print(text)
         # Text to speech automatic play
-        tts = gTTS(text) #Provide the string to convert to speech
+        tts = gTTS(text=text, lang='es') 
+
+        """
+        # Save the audio as a temporary file (default format is mp3)
+        temp_audio_file = "temp_audio.mp3"
+        tts.save(temp_audio_file)
+        # Save the audio as a temporary file (default format is mp3)
+        temp_audio_file = "temp_audio.mp3"
+        tts.save(temp_audio_file)
+        # Load the mp3 file and save it as WAV format
+        audio = AudioSegment.from_mp3(temp_audio_file)
+        output_audio_file = "spanish_audio_file.wav"
+        audio.export(output_audio_file, format="wav")
+
+        # Clean up: delete the temporary mp3 file
+        import os
+        os.remove(temp_audio_file)
+        """
         tts.save('1.wav') #save the string converted to speech as a .wav file
         sound_file = '1.wav'
-        return Audio(sound_file, autoplay=True, language='es')
+        return Audio(sound_file, autoplay=True)
         
         #cv2.waitKey(3)
         #print('el texto ya se dijo')
-
-
 
 
 
