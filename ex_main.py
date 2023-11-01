@@ -141,7 +141,7 @@ class Detector:
 
         # display with filter per hierarchy
         #output = viz.draw_panoptic_seg_predictions(pred_arr.to("cpu"), segmentInfo_)
-        #cv2_imshow(output.get_image()[:,:,::-1])
+        cv2_imshow(output.get_image()[:,:,::-1])
 
         return pred_arr, pred_hierarchy, Info_with_label
 
@@ -405,15 +405,19 @@ class Midas:
       q2 = np.percentile(img_out, 50)  # Second quartile (Q2 or median)
       q3 = np.percentile(img_out, 75)  # Third quartile (Q3)
 
-      proximity_out[proximity_out <= q1] = q1 #far
-      proximity_out[(proximity_out > q1) & (proximity_out <= q2)] = q2 #near
-      proximity_out[proximity_out > q2] = q3 # very near
+      #proximity_out[proximity_out <= q1] = q1 #far
+      #proximity_out[(proximity_out > q1) & (proximity_out <= q2)] = q2 #near
+      #proximity_out[proximity_out > q2] = q3 # very near
+
+      proximity_out[proximity_out <= 5] = 5 #far
+      proximity_out[(proximity_out > 5) & (proximity_out <= 15)] = 15 #near
+      proximity_out[proximity_out > 15] = 20 # very near
 
       #==================================== display image=======================================
       #plt.imshow(proximity_out)
       #img_dis = (proximity_out/256).astype(np.uint8)
       #cv2.applyColorMap(img_dis, cv2.COLORMAP_PLASMA)
-      #cv2_imshow(img_dis)
+      cv2_imshow(img_dis)
       return proximity_out
 
       """
@@ -466,6 +470,10 @@ class Midas:
       proximity_out[proximity_out <= q1] = q1 #far
       proximity_out[(proximity_out > q1) & (proximity_out <= q2)] = q2 #near
       proximity_out[proximity_out > q2] = q3 # very near
+
+      #proximity_out[proximity_out <= q1] = q1 #far
+      #proximity_out[(proximity_out > q1) & (proximity_out <= q2)] = q2 #near
+      #proximity_out[proximity_out > q2] = q3 # very near
 
       #==================================== display image=======================================
       #plt.imshow(proximity_out)
@@ -553,7 +561,7 @@ class MobileCam(Midas, Detector):
     segment_rvn[depth_array != depth_thresh[-1]] = 0 # Relevant and very near
     segment_vrn[depth_array != depth_thresh[-2]] = 0 # Very Relevant and near
     segment_rn[depth_array != depth_thresh[-2]] = 0 # Relevant and near
-
+    print(depth_thresh)
     # ============ Predict the poistion for each object / stuff detected ===================
     h_mod = len(segment_arr) % 3
     w_mod = len(segment_arr[0]) % 3
@@ -577,6 +585,10 @@ class MobileCam(Midas, Detector):
     quad_dict = {0: 'superior izquierda', 1: 'centro superior', 2: 'superior derecha',
                       3: 'medio izquierda' , 4: 'medio centro' , 5:'medio derecha' ,
                       6:'inferior izquierda' , 7: 'centro inferior', 8: 'inderior derecha'}
+
+    quad_dict = {0: 'izquierda', 1: 'centro', 2: 'derecha',
+              3: 'izquierda' , 4: 'centro' , 5:'derecha' ,
+              6:'izquierda' , 7: 'centro', 8: 'derecha'}
 
     # class unique class id
     id_dict = {l:np.array([]) for l in pred_id}
@@ -735,6 +747,7 @@ class MobileCam(Midas, Detector):
         depth_array = self.onVideo_m(frame)
         depth_array = depth_array.T
         depth_thresh = np.unique(depth_array)
+
         segment_vrvn[depth_array != depth_thresh[-1]] = 0 # Very Relevant and very near
         segment_rvn[depth_array != depth_thresh[-1]] = 0 # Relevant and very near
         segment_vrn[depth_array != depth_thresh[-2]] = 0 # Very Relevant and near
@@ -763,8 +776,11 @@ class MobileCam(Midas, Detector):
         quad_dict = {0: 'superior izquierda', 1: 'centro superior', 2: 'superior derecha',
                       3: 'medio izquierda' , 4: 'medio centro' , 5:'medio derecha' ,
                       6:'inferior izquierda' , 7: 'centro inferior', 8: 'inderior derecha'}
-      
-      
+
+        quad_dict = {0: 'izquierda', 1: 'centro', 2: 'derecha',
+                    3: 'izquierda' , 4: 'centro' , 5:'derecha' ,
+                    6:'izquierda' , 7: 'centro', 8: 'derecha'}
+
         # class unique class id
         id_dict = {l:np.array([]) for l in pred_id}
 
@@ -781,6 +797,7 @@ class MobileCam(Midas, Detector):
         r_vn = [(pred_class[pred_id.index(i)], id_dict[i]) for i in np.unique(segment_rvn) if i != 0]
         vr_n = [(pred_class[pred_id.index(i)], id_dict[i]) for i in np.unique(segment_vrn) if i != 0]
         r_n = [(pred_class[pred_id.index(i)], id_dict[i]) for i in np.unique(segment_rn) if i != 0]
+
 
         text = []
         vr_vn_len = len(vr_vn) > 0
