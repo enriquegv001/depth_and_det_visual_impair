@@ -114,7 +114,7 @@ class Detector:
                 #if x['isthing'] == False:
                 Info_with_label[k].append(x[k])
 
-            trans_dict_stuff = {'things': 'objetos', 'banner': 'letrero', 'blanket': 'sábana', 'bridge': 'puente', 'cardboard': 'cartón', 'counter': 'mostrador', 'curtain': 'cortina', 'door-stuff': 'puerta', 'floor-wood': 'piso de madera', 'flower': 'flor', 'fruit': 'fruta', 'gravel': 'grava', 'house': 'casa', 'light': 'luz', 'mirror-stuff': 'espejo', 'net': 'red', 'pillow': 'almohada', 'platform': 'plataforma', 'playingfield': 'cancha de juego', 'railroad': 'ferrocarril', 'river': 'río', 'road': 'camino', 'roof': 'tejado', 'sand': 'arena', 'sea': 'oceano', 'shelf': 'concha', 'snow': 'nieve', 'stairs': 'escalera', 'tent': 'tienda de campaña', 'towel': 'toalla', 'wall-brick': 'pared de ladrillo', 'wall-stone': 'pared de piedra', 'wall-tile': 'pared de teja', 'wall-wood': 'pared de madera', 'water': 'agua', 'window-blind': 'persiana', 'window': 'ventana', 'tree': 'árbol', 'fence': 'valla', 'ceiling': 'techo', 'sky': 'cielo', 'cabinet': 'gabinete', 'table': 'mesa', 'floor': 'piso', 'pavement': 'pavimento', 'mountain': 'montaña', 'grass': 'pasto', 'dirt': 'tierra', 'paper': 'papel', 'food': 'comida', 'building': 'construcción', 'rock': 'roca', 'wall': 'pared', 'rug': 'alfombra'}
+            trans_dict_stuff = {'things': 'objetos', 'banner': 'letrero', 'blanket': 'sábana', 'bridge': 'puente', 'cardboard': 'cartón', 'counter': 'mostrador', 'curtain': 'cortina', 'door-stuff': 'puerta', 'floor-wood': 'piso de madera', 'flower': 'flor', 'fruit': 'fruta', 'gravel': 'grava', 'house': 'casa', 'light': 'luz', 'mirror-stuff': 'espejo', 'net': 'red', 'pillow': 'almohada', 'platform': 'plataforma', 'playingfield': 'cancha de juego', 'railroad': 'ferrocarril', 'river': 'río', 'road': 'camino', 'roof': 'tejado', 'sand': 'arena', 'sea': 'oceano', 'shelf': 'repisas', 'snow': 'nieve', 'stairs': 'escalera', 'tent': 'tienda de campaña', 'towel': 'toalla', 'wall-brick': 'pared de ladrillo', 'wall-stone': 'pared de piedra', 'wall-tile': 'pared de teja', 'wall-wood': 'pared de madera', 'water': 'agua', 'window-blind': 'persiana', 'window': 'ventana', 'tree': 'árbol', 'fence': 'valla', 'ceiling': 'techo', 'sky': 'cielo', 'cabinet': 'gabinete', 'table': 'mesa', 'floor': 'piso', 'pavement': 'pavimento', 'mountain': 'montaña', 'grass': 'pasto', 'dirt': 'tierra', 'paper': 'papel', 'food': 'comida', 'building': 'construcción', 'rock': 'roca', 'wall': 'pared', 'rug': 'alfombra'}
             trans_dict_things = {'person': 'persona', 'bicycle': 'bicicleta', 'car': 'coche', 'motorcycle': 'motocicleta', 'airplane': 'avión', 'bus': 'autobus', 'train': 'tren', 'truck': 'camioneta', 'boat': 'bote', 'traffic light': 'semáforo', 'fire hydrant': 'hidratante', 'stop sign': 'señalización de alto', 'parking meter': 'parquímetro', 'bench': 'banca', 'bird': 'pájaro', 'cat': 'gato', 'dog': 'perro', 'horse': 'caballo', 'sheep': 'oveja', 'cow': 'vaca', 'elephant': 'elefante', 'bear': 'oso', 'zebra': 'cebra', 'giraffe': 'jirafa', 'backpack': 'mochila', 'umbrella': 'sombrilla', 'handbag': 'maleta de mano', 'tie': 'corbata', 'suitcase': 'portafolio', 'frisbee': 'frisbee', 'skis': 'skis', 'snowboard': 'snowboard', 'sports ball': 'balón', 'kite': 'cometa', 'baseball bat': 'bate de baseball', 'baseball glove': 'guante de baseball', 'skateboard': 'patineta', 'surfboard': 'tabla de surf', 'tennis racket': 'raqueta', 'bottle': 'botella', 'wine glass': 'copa de vino', 'cup': 'tasa', 'fork': 'tenedor', 'knife': 'cuchillo', 'spoon': 'cuchara', 'bowl': 'tasón', 'banana': 'plátano', 'apple': 'manzana', 'sandwich': 'sandwich', 'orange': 'naraja', 'broccoli': 'broccoli', 'carrot': 'zanahoria', 'hot dog': 'hot dog', 'pizza': 'pizza', 'donut': 'dona', 'cake': 'pastel', 'chair': 'silla', 'couch': 'sillón', 'potted plant': 'maceta', 'bed': 'cama', 'dining table': 'mesa de comedor', 'toilet': 'escusado', 'tv': 'televisión', 'laptop': 'laptop', 'mouse': 'mouse', 'remote': 'control remoto', 'keyboard': 'teclado', 'cell phone': 'celular', 'microwave': 'microondas', 'oven': 'horno', 'toaster': 'tostador', 'sink': 'lavabo', 'refrigerator': 'refrigerador', 'book': 'libro', 'clock': 'reloj', 'vase': 'jarrón', 'scissors': 'tijeras', 'teddy bear': 'oso de peluche', 'hair drier': 'secadora de pelo', 'toothbrush': 'pasta de dientes'}
             trans_set_stuff = set(trans_dict_stuff.keys())
             trans_set_thing = set(trans_dict_things.keys())
@@ -141,7 +141,7 @@ class Detector:
 
         # display with filter per hierarchy
         #output = viz.draw_panoptic_seg_predictions(pred_arr.to("cpu"), segmentInfo_)
-        #cv2_imshow(output.get_image()[:,:,::-1])
+        cv2_imshow(output.get_image()[:,:,::-1])
 
         return pred_arr, pred_hierarchy, Info_with_label
 
@@ -229,7 +229,7 @@ class Detector:
           Info_with_label[k].append(x[k])
 
       # translate prediction to spanish
-      trans_dict_stuff = {'things': 'objetos', 'banner': 'letrero', 'blanket': 'sábana', 'bridge': 'puente', 'cardboard': 'cartón', 'counter': 'mostrador', 'curtain': 'cortina', 'door-stuff': 'puerta', 'floor-wood': 'piso de madera', 'flower': 'flor', 'fruit': 'fruta', 'gravel': 'grava', 'house': 'casa', 'light': 'luz', 'mirror-stuff': 'espejo', 'net': 'red', 'pillow': 'almohada', 'platform': 'plataforma', 'playingfield': 'cancha de juego', 'railroad': 'ferrocarril', 'river': 'río', 'road': 'camino', 'roof': 'tejado', 'sand': 'arena', 'sea': 'oceano', 'shelf': 'concha', 'snow': 'nieve', 'stairs': 'escalera', 'tent': 'tienda de campaña', 'towel': 'toalla', 'wall-brick': 'pared de ladrillo', 'wall-stone': 'pared de piedra', 'wall-tile': 'pared de teja', 'wall-wood': 'pared de madera', 'water': 'agua', 'window-blind': 'persiana', 'window': 'ventana', 'tree': 'árbol', 'fence': 'valla', 'ceiling': 'techo', 'sky': 'cielo', 'cabinet': 'gabinete', 'table': 'mesa', 'floor': 'piso', 'pavement': 'pavimento', 'mountain': 'montaña', 'grass': 'pasto', 'dirt': 'tierra', 'paper': 'papel', 'food': 'comida', 'building': 'construcción', 'rock': 'roca', 'wall': 'pared', 'rug': 'alfombra'}
+      trans_dict_stuff = {'things': 'objetos', 'banner': 'letrero', 'blanket': 'sábana', 'bridge': 'puente', 'cardboard': 'cartón', 'counter': 'mostrador', 'curtain': 'cortina', 'door-stuff': 'puerta', 'floor-wood': 'piso de madera', 'flower': 'flor', 'fruit': 'fruta', 'gravel': 'grava', 'house': 'casa', 'light': 'luz', 'mirror-stuff': 'espejo', 'net': 'red', 'pillow': 'almohada', 'platform': 'plataforma', 'playingfield': 'cancha de juego', 'railroad': 'ferrocarril', 'river': 'río', 'road': 'camino', 'roof': 'tejado', 'sand': 'arena', 'sea': 'oceano', 'shelf': 'repisas', 'snow': 'nieve', 'stairs': 'escalera', 'tent': 'tienda de campaña', 'towel': 'toalla', 'wall-brick': 'pared de ladrillo', 'wall-stone': 'pared de piedra', 'wall-tile': 'pared de teja', 'wall-wood': 'pared de madera', 'water': 'agua', 'window-blind': 'persiana', 'window': 'ventana', 'tree': 'árbol', 'fence': 'valla', 'ceiling': 'techo', 'sky': 'cielo', 'cabinet': 'gabinete', 'table': 'mesa', 'floor': 'piso', 'pavement': 'pavimento', 'mountain': 'montaña', 'grass': 'pasto', 'dirt': 'tierra', 'paper': 'papel', 'food': 'comida', 'building': 'construcción', 'rock': 'roca', 'wall': 'pared', 'rug': 'alfombra'}
       trans_dict_things = {'person': 'persona', 'bicycle': 'bicicleta', 'car': 'coche', 'motorcycle': 'motocicleta', 'airplane': 'avión', 'bus': 'autobus', 'train': 'tren', 'truck': 'camioneta', 'boat': 'bote', 'traffic light': 'semáforo', 'fire hydrant': 'hidratante', 'stop sign': 'señalización de alto', 'parking meter': 'parquímetro', 'bench': 'banca', 'bird': 'pájaro', 'cat': 'gato', 'dog': 'perro', 'horse': 'caballo', 'sheep': 'oveja', 'cow': 'vaca', 'elephant': 'elefante', 'bear': 'oso', 'zebra': 'cebra', 'giraffe': 'jirafa', 'backpack': 'mochila', 'umbrella': 'sombrilla', 'handbag': 'maleta de mano', 'tie': 'corbata', 'suitcase': 'portafolio', 'frisbee': 'frisbee', 'skis': 'skis', 'snowboard': 'snowboard', 'sports ball': 'balón', 'kite': 'cometa', 'baseball bat': 'bate de baseball', 'baseball glove': 'guante de baseball', 'skateboard': 'patineta', 'surfboard': 'tabla de surf', 'tennis racket': 'raqueta', 'bottle': 'botella', 'wine glass': 'copa de vino', 'cup': 'tasa', 'fork': 'tenedor', 'knife': 'cuchillo', 'spoon': 'cuchara', 'bowl': 'tasón', 'banana': 'plátano', 'apple': 'manzana', 'sandwich': 'sandwich', 'orange': 'naraja', 'broccoli': 'broccoli', 'carrot': 'zanahoria', 'hot dog': 'hot dog', 'pizza': 'pizza', 'donut': 'dona', 'cake': 'pastel', 'chair': 'silla', 'couch': 'sillón', 'potted plant': 'maceta', 'bed': 'cama', 'dining table': 'mesa de comedor', 'toilet': 'escusado', 'tv': 'televisión', 'laptop': 'laptop', 'mouse': 'mouse', 'remote': 'control remoto', 'keyboard': 'teclado', 'cell phone': 'celular', 'microwave': 'microondas', 'oven': 'horno', 'toaster': 'tostador', 'sink': 'lavabo', 'refrigerator': 'refrigerador', 'book': 'libro', 'clock': 'reloj', 'vase': 'jarrón', 'scissors': 'tijeras', 'teddy bear': 'oso de peluche', 'hair drier': 'secadora de pelo', 'toothbrush': 'pasta de dientes'}
       trans_set_stuff = set(trans_dict_stuff.keys())
       trans_set_thing = set(trans_dict_things.keys())
@@ -405,15 +405,19 @@ class Midas:
       q2 = np.percentile(img_out, 50)  # Second quartile (Q2 or median)
       q3 = np.percentile(img_out, 75)  # Third quartile (Q3)
 
-      proximity_out[proximity_out <= q1] = q1 #far
-      proximity_out[(proximity_out > q1) & (proximity_out <= q2)] = q2 #near
-      proximity_out[proximity_out > q2] = q3 # very near
+      #proximity_out[proximity_out <= q1] = q1 #far
+      #proximity_out[(proximity_out > q1) & (proximity_out <= q2)] = q2 #near
+      #proximity_out[proximity_out > q2] = q3 # very near
+
+      proximity_out[proximity_out <= 5] = 5 #far
+      proximity_out[(proximity_out > 5) & (proximity_out <= 15)] = 15 #near
+      proximity_out[proximity_out > 15] = 20 # very near
 
       #==================================== display image=======================================
       #plt.imshow(proximity_out)
       #img_dis = (proximity_out/256).astype(np.uint8)
       #cv2.applyColorMap(img_dis, cv2.COLORMAP_PLASMA)
-      #cv2_imshow(img_dis)
+      cv2_imshow(img_dis)
       return proximity_out
 
       """
@@ -460,12 +464,16 @@ class Midas:
       img_dis = (proximity_out+min(uniqeu_out))*(255/(max(uniqeu_out)-min(uniqeu_out)))
 
       q1 = np.percentile(img_out, 25)  # First quartile (Q1)
-      q2 = np.percentile(img_out, 50)  # Second quartile (Q2 or median)
-      q3 = np.percentile(img_out, 75)  # Third quartile (Q3)
+      q2 = np.percentile(img_out, 60)  # Second quartile (Q2 or median)
+      q3 = np.percentile(img_out, 90)  # Third quartile (Q3)
 
       proximity_out[proximity_out <= q1] = q1 #far
-      proximity_out[(proximity_out > q1) & (proximity_out <= q2)] = q2 #near
-      proximity_out[proximity_out > q2] = q3 # very near
+      proximity_out[(proximity_out > q2) & (proximity_out <= q3)] = q2 #near
+      proximity_out[proximity_out > q3] = q3 # very near
+
+      #proximity_out[proximity_out <= q1] = q1 #far
+      #proximity_out[(proximity_out > q1) & (proximity_out <= q2)] = q2 #near
+      #proximity_out[proximity_out > q2] = q3 # very near
 
       #==================================== display image=======================================
       #plt.imshow(proximity_out)
@@ -553,7 +561,7 @@ class MobileCam(Midas, Detector):
     segment_rvn[depth_array != depth_thresh[-1]] = 0 # Relevant and very near
     segment_vrn[depth_array != depth_thresh[-2]] = 0 # Very Relevant and near
     segment_rn[depth_array != depth_thresh[-2]] = 0 # Relevant and near
-
+    print(depth_thresh)
     # ============ Predict the poistion for each object / stuff detected ===================
     h_mod = len(segment_arr) % 3
     w_mod = len(segment_arr[0]) % 3
@@ -577,6 +585,10 @@ class MobileCam(Midas, Detector):
     quad_dict = {0: 'superior izquierda', 1: 'centro superior', 2: 'superior derecha',
                       3: 'medio izquierda' , 4: 'medio centro' , 5:'medio derecha' ,
                       6:'inferior izquierda' , 7: 'centro inferior', 8: 'inderior derecha'}
+
+    quad_dict = {0: 'derecha', 1: 'centro', 2: 'izquierda',
+              3: 'derecha' , 4: 'centro' , 5:'izquierda' ,
+              6:'derecha' , 7: 'centro', 8: 'izquierda'}
 
     # class unique class id
     id_dict = {l:np.array([]) for l in pred_id}
@@ -735,6 +747,7 @@ class MobileCam(Midas, Detector):
         depth_array = self.onVideo_m(frame)
         depth_array = depth_array.T
         depth_thresh = np.unique(depth_array)
+
         segment_vrvn[depth_array != depth_thresh[-1]] = 0 # Very Relevant and very near
         segment_rvn[depth_array != depth_thresh[-1]] = 0 # Relevant and very near
         segment_vrn[depth_array != depth_thresh[-2]] = 0 # Very Relevant and near
@@ -748,30 +761,33 @@ class MobileCam(Midas, Detector):
         if w_mod != 0:
             segment_arr = segment_arr[:, :-w_mod]
 
-        # get the amount the amount of pixels they correspond for each quadrant
-        h = len(segment_arr) // 3
+        ""# get the amount the amount of pixels they correspond for each quadrant
+        h = len(segment_arr) #// 3
         w = len(segment_arr[0]) // 3
         q_area = h * w
 
-        # devided into grid of 3 x 3
+        """# devided into grid of 3 x 3
         quad = [segment_arr[:h, :w], segment_arr[:h, w:2*w], segment_arr[:h, 2*w:],
             segment_arr[h:2*h, :w], segment_arr[h:2*h, w:2*w], segment_arr[h:2*h, 2*w:],
             segment_arr[2*h:, :w], segment_arr[2*h:, w:2*w], segment_arr[2*h:, 2*w:]
-            ] # quadrants
+            ] # quadrants"""""
+        # devided into grid of 3 x 3
+        quad = [segment_arr[:, :w], segment_arr[:, w:2*w], segment_arr[:, 2*w:]] # quadrants""
 
         # get the prediction for each label
-        quad_dict = {0: 'superior izquierda', 1: 'centro superior', 2: 'superior derecha',
-                      3: 'medio izquierda' , 4: 'medio centro' , 5:'medio derecha' ,
-                      6:'inferior izquierda' , 7: 'centro inferior', 8: 'inderior derecha'}
-      
-      
+        #quad_dict = {0: 'superior izquierda', 1: 'centro superior', 2: 'superior derecha',
+        #              3: 'medio izquierda' , 4: 'medio centro' , 5:'medio derecha' ,
+        #              6:'inferior izquierda' , 7: 'centro inferior', 8: 'inderior derecha'}
+
+        quad_dict = {0: 'izquierda', 1: 'centro', 2: 'derecha'}
+
         # class unique class id
         id_dict = {l:np.array([]) for l in pred_id}
 
         for k in id_dict:
             for q in quad:
                 id_dict[k] = np.append(len(q[q == k]), id_dict[k])
-            id_dict[k] = id_dict[k]/q_area
+            #id_dict[k] = id_dict[k]/q_area
             id_dict[k] = quad_dict[np.where(id_dict[k] == max(id_dict[k]))[0][0]] #[::-1] index for quadrant
         #print(id_dict)
 
@@ -782,28 +798,31 @@ class MobileCam(Midas, Detector):
         vr_n = [(pred_class[pred_id.index(i)], id_dict[i]) for i in np.unique(segment_vrn) if i != 0]
         r_n = [(pred_class[pred_id.index(i)], id_dict[i]) for i in np.unique(segment_rn) if i != 0]
 
+
         text = []
         vr_vn_len = len(vr_vn) > 0
-        if vr_vn_len:
-          text.append('\nprecaución acercándose a')
-          #[print(p[0] + ' '+ p[1] + ' ') for p in vr_vn]
-          [text.append(p[0] + ' '+ p[1] + ' ') for p in vr_vn]
+        #if vr_vn_len:
+        #  text.append('\nprecaución acercándose a')
+        #  #[print(p[0] + ' '+ p[1] + ' ') for p in vr_vn]
+        #  [text.append(p[0] + ' '+ p[1] + ' ') for p in vr_vn]
 
         if len(r_vn) > 0:
-          if not vr_vn_len:
-            text.append('\nprecaución acercándose a')
+          #if not vr_vn_len:
+          text.append('\nprecaución acercándose a')
           [text.append(p[0] + ' '+ p[1] + ' ') for p in r_vn]
-
+            
         vr_n_l = len(vr_n) > 0
         if vr_n_l:
-          text.append('\npróximamente')
-          [text.append(p[0] + ' '+ p[1] + ' ') for p in vr_n]
-
+          #text.append('\npróximamente')
+          #[text.append(p[0] + ' '+ p[1] + ' ') for p in vr_n]
+            pass
         if len(r_n) > 0:
-          if not vr_n_l:
-            text.append('\npróximamente')
-          [text.append(p[0] + ' '+ p[1] + ' ') for p in r_n]
-
+          #if not vr_n_l:
+          #  text.append('\npróximamente')
+          #[text.append(p[0] + ' '+ p[1] + ' ') for p in r_n]
+            pass
+        if len(text)==0:
+          text =['  Sin objetos relevantes  ']
         # Text to speech automatic play
         text = ', '.join(text)
         #print(text)
@@ -813,7 +832,4 @@ class MobileCam(Midas, Detector):
         return Audio(sound_file, autoplay=True)
         
         #cv2.waitKey(3)
-
-
-
 

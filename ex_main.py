@@ -465,7 +465,7 @@ class Midas:
 
       q1 = np.percentile(img_out, 25)  # First quartile (Q1)
       q2 = np.percentile(img_out, 50)  # Second quartile (Q2 or median)
-      q3 = np.percentile(img_out, 95)  # Third quartile (Q3)
+      q3 = np.percentile(img_out, 85)  # Third quartile (Q3)
 
       proximity_out[proximity_out <= q1] = q1 #far
       proximity_out[(proximity_out > q1) & (proximity_out <= q2)] = q2 #near
@@ -830,7 +830,4 @@ class MobileCam(Midas, Detector):
         return Audio(sound_file, autoplay=True)
         
         #cv2.waitKey(3)
-
-
-
 
