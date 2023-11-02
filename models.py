@@ -33,7 +33,7 @@ import os
 os.system('pip install gtts pydub') 
 from gtts import gTTS #Import Google Text to Speech
 from pydub import AudioSegment
-from IPython.display import Audio #Import Audio method from IPython's Display Class
+from IPython.display import display, Audio, clear_output #Import Audio method from IPython's Display Class
 
 class Detector:
     def __init__(self, model_type="OD"):
@@ -710,7 +710,9 @@ class MobileCam(Midas, Detector):
     # initialze bounding box to empty
     bbox = ''
     count = 0
+
     while True:
+        time.sleep(5)
         js_reply = video_frame(label_html, bbox)
         if not js_reply:
             break
@@ -761,8 +763,8 @@ class MobileCam(Midas, Detector):
             segment_arr = segment_arr[:, :-w_mod]
 
         # get the amount the amount of pixels they correspond for each quadrant
-        h = len(segment_arr) #// 3
-        w = len(segment_arr[0]) // 3
+        h = len(segment_arr) // 3
+        w = len(segment_arr[0]) #// 3
         q_area = h * w
 
         """# devided into grid of 3 x 3
@@ -771,14 +773,14 @@ class MobileCam(Midas, Detector):
             segment_arr[2*h:, :w], segment_arr[2*h:, w:2*w], segment_arr[2*h:, 2*w:]
             ] # quadrants"""
         # devided into grid of 3 x 1
-        quad = [segment_arr[:, :w], segment_arr[:, w:2*w], segment_arr[:, 2*w:]] # quadrants""
+        quad = [segment_arr[:h, :], segment_arr[h:2*h, :], segment_arr[2*h:, :]] # quadrants""
 
         # get the prediction for each label
         #quad_dict = {0: 'superior izquierda', 1: 'centro superior', 2: 'superior derecha',
         #              3: 'medio izquierda' , 4: 'medio centro' , 5:'medio derecha' ,
         #              6:'inferior izquierda' , 7: 'centro inferior', 8: 'inderior derecha'}
 
-        quad_dict = {0: 'iz', 1: 'fr', 2: 'de'}
+        quad_dict = {0: 'de', 1: 'fr', 2: 'iz'}
 
         # class unique class id
         id_dict = {l:np.array([]) for l in pred_id}
@@ -813,7 +815,7 @@ class MobileCam(Midas, Detector):
         vr_n_l = len(vr_n) > 0
         if vr_n_l:
           text.append('\npróximamente')
-          iz, fr, de = ['izquieda: '], ['frente: '], ['derecha: ']
+          iz, fr, de = ['izquierda: '], ['frente: '], ['derecha: ']
           for p in vr_n:
             if p[1] == 'iz':                             
               iz.append(p[0] + ' ')
@@ -838,11 +840,10 @@ class MobileCam(Midas, Detector):
 
         # Text to speech automatic play
         text = ', '.join(text)
-        #print(text)
+        print(text)
         tts = gTTS(text=text, lang='es') 
         tts.save('1.wav') 
         sound_file = '1.wav'
         return Audio(sound_file, autoplay=True)
-        
         #cv2.waitKey(3)
 
