@@ -196,7 +196,7 @@ class Detector:
       """
 
       # set the class label and class heirarchy inside segmentInfo
-      stuff_hierarchy = {'things': 1, 'banner': 1, 'blanket': 2, 'bridge': 1, 'cardboard': 1, 'counter': 1, 'curtain': 2, 'door-stuff': 1, 'floor-wood': 2, 'flower': 3, 'fruit': 2, 'gravel': 3, 'house': 3, 'light': 3, 'mirror-stuff': 1, 'net': 2, 'pillow': 2, 'platform': 1, 'playingfield': 3, 'railroad': 1, 'river': 1, 'road': 1, 'roof': 3, 'sand': 3, 'sea': 3, 'shelf': 1, 'snow': 1, 'stairs': 1, 'tent': 1, 'towel': 2, 'wall-brick': 1, 'wall-stone': 1, 'wall-tile': 1, 'wall-wood': 1, 'water': 1, 'window-blind': 1, 'window': 1, 'tree': 3, 'fence': 1, 'ceiling': 3, 'sky': 3, 'cabinet': 1, 'table': 1, 'floor': 3, 'pavement': 3, 'mountain': 3, 'grass': 3, 'dirt': 3, 'paper': 2, 'food': 2, 'building': 1, 'rock': 1, 'wall': 1, 'rug': 2}
+      stuff_hierarchy = {'things': 1, 'banner': 1, 'blanket': 2, 'bridge': 1, 'cardboard': 1, 'counter': 1, 'curtain': 2, 'door-stuff': 1, 'floor-wood': 2, 'flower': 3, 'fruit': 2, 'gravel': 3, 'house': 3, 'light': 3, 'mirror-stuff': 1, 'net': 2, 'pillow': 2, 'platform': 1, 'playingfield': 3, 'railroad': 1, 'river': 1, 'road': 1, 'roof': 3, 'sand': 3, 'sea': 3, 'shelf': 1, 'snow': 1, 'stairs': 1, 'tent': 1, 'towel': 2, 'wall-brick': 1, 'wall-stone': 1, 'wall-tile': 3, 'wall-wood': 1, 'water': 1, 'window-blind': 1, 'window': 1, 'tree': 3, 'fence': 1, 'ceiling': 3, 'sky': 3, 'cabinet': 1, 'table': 1, 'floor': 3, 'pavement': 3, 'mountain': 3, 'grass': 3, 'dirt': 3, 'paper': 2, 'food': 2, 'building': 1, 'rock': 1, 'wall': 1, 'rug': 2}
       stuff_cat_id = {i: c for i, c in enumerate(metadata.stuff_classes)} # dict with index and classes
 
       thing_hierarchy = {'person': 1, 'bicycle': 1, 'car': 1, 'motorcycle':1, 'airplane':3, 'bus':1, 'train':1, 'truck':1, 'boat':3, 'traffic light':2, 'fire hydrant':2, 'stop sign':2, 'parking meter':2, 'bench':2, 'bird':3, 'cat':1, 'dog':1, 'horse':1, 'sheep':1, 'cow':1, 'elephant':1, 'bear':1, 'zebra':1, 'giraffe':1, 'backpack':2, 'umbrella':2, 'handbag':2, 'tie':3, 'suitcase':2, 'frisbee':1, 'skis':2, 'snowboard':2, 'sports ball':2, 'kite':3, 'baseball bat':2, 'baseball glove':2, 'skateboard':1, 'surfboard':3, 'tennis racket':2, 'bottle':2, 'wine glass':2, 'cup':2, 'fork':2, 'knife':2, 'spoon':3, 'bowl':3, 'banana':3, 'apple':3, 'sandwich':3, 'orange':3, 'broccoli':3, 'carrot':3, 'hot dog':3, 'pizza':3, 'donut':3, 'cake':3, 'chair':2, 'couch':2, 'potted plant':3, 'bed':2, 'dining table':2, 'toilet':2, 'tv':3, 'laptop':3, 'mouse':3, 'remote':3, 'keyboard':3, 'cell phone':3, 'microwave':3, 'oven':2, 'toaster':2, 'sink':2, 'refrigerator':2, 'book':3, 'clock':3, 'vase':2, 'scissors':2, 'teddy bear':3, 'hair drier':3, 'toothbrush':3}
@@ -610,7 +610,7 @@ class MobileCam(Midas, Detector):
     r_vn = [(pred_class[pred_id.index(i)], id_dict[i]) for i in np.unique(segment_rvn) if i != 0]
     vr_n = [(pred_class[pred_id.index(i)], id_dict[i]) for i in np.unique(segment_vrn) if i != 0]
     r_n = [(pred_class[pred_id.index(i)], id_dict[i]) for i in np.unique(segment_rn) if i != 0]
-
+    print(vr_vn, r_vn, vr_n, r_n)
 
     text = []
     vr_vn_len = len(vr_vn) > 0
