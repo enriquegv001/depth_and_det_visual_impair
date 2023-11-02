@@ -399,23 +399,29 @@ class Midas:
       uniqeu_out = np.unique(proximity_out)
       img_dis = (proximity_out+min(uniqeu_out))*(255/(max(uniqeu_out)-min(uniqeu_out)))
 
-      q1 = np.percentile(img_out, 25)  # First quartile (Q1)
-      q2 = np.percentile(img_out, 50)  # Second quartile (Q2 or median)
-      q3 = np.percentile(img_out, 75)  # Third quartile (Q3)
+      if self.thresh_m < np.percentile(img_out, 75):
+        img_out = img_out[img_out < self.thresh_m]
+        p1 = np.percentile(img_out, 25)  # First quartile (Q1)
+        p2 = np.percentile(img_out, 60)  # Second quartile (Q2 or median)
+        p3 = np.percentile(img_out, 70)  # Third quartile (Q3)
+      
+      else:
+        p1 = np.percentile(img_out, 25)  # First quartile (Q1)
+        p2 = np.percentile(img_out, 60)  # Second quartile (Q2 or median)
+        p3 = np.percentile(img_out, 90)  # Third quartile (Q3)
+
+      proximity_out[proximity_out <= p1] = p1 #far
+      proximity_out[(proximity_out > p2) & (proximity_out <= p3)] = p2 #near
+      proximity_out[proximity_out > p3] = p3 # very near
 
       #proximity_out[proximity_out <= q1] = q1 #far
       #proximity_out[(proximity_out > q1) & (proximity_out <= q2)] = q2 #near
       #proximity_out[proximity_out > q2] = q3 # very near
 
-      proximity_out[proximity_out <= 5] = 5 #far
-      proximity_out[(proximity_out > 5) & (proximity_out <= 15)] = 15 #near
-      proximity_out[proximity_out > 15] = 20 # very near
-
       #==================================== display image=======================================
       #plt.imshow(proximity_out)
       #img_dis = (proximity_out/256).astype(np.uint8)
       #cv2.applyColorMap(img_dis, cv2.COLORMAP_PLASMA)
-      #cv2_imshow(img_dis)
       cv2_imshow(proximity_out)
       return proximity_out
 
