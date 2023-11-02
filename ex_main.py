@@ -114,7 +114,7 @@ class Detector:
                 #if x['isthing'] == False:
                 Info_with_label[k].append(x[k])
 
-            trans_dict_stuff = {'things': 'objetos', 'banner': 'letrero', 'blanket': 'sábana', 'bridge': 'puente', 'cardboard': 'cartón', 'counter': 'mostrador', 'curtain': 'cortina', 'door-stuff': 'puerta', 'floor-wood': 'piso de madera', 'flower': 'flor', 'fruit': 'fruta', 'gravel': 'grava', 'house': 'casa', 'light': 'luz', 'mirror-stuff': 'espejo', 'net': 'red', 'pillow': 'almohada', 'platform': 'plataforma', 'playingfield': 'cancha de juego', 'railroad': 'ferrocarril', 'river': 'río', 'road': 'camino', 'roof': 'tejado', 'sand': 'arena', 'sea': 'oceano', 'shelf': 'concha', 'snow': 'nieve', 'stairs': 'escalera', 'tent': 'tienda de campaña', 'towel': 'toalla', 'wall-brick': 'pared de ladrillo', 'wall-stone': 'pared de piedra', 'wall-tile': 'pared de teja', 'wall-wood': 'pared de madera', 'water': 'agua', 'window-blind': 'persiana', 'window': 'ventana', 'tree': 'árbol', 'fence': 'valla', 'ceiling': 'techo', 'sky': 'cielo', 'cabinet': 'gabinete', 'table': 'mesa', 'floor': 'piso', 'pavement': 'pavimento', 'mountain': 'montaña', 'grass': 'pasto', 'dirt': 'tierra', 'paper': 'papel', 'food': 'comida', 'building': 'construcción', 'rock': 'roca', 'wall': 'pared', 'rug': 'alfombra'}
+            trans_dict_stuff = {'things': 'objetos', 'banner': 'letrero', 'blanket': 'sábana', 'bridge': 'puente', 'cardboard': 'cartón', 'counter': 'mostrador', 'curtain': 'cortina', 'door-stuff': 'puerta', 'floor-wood': 'piso de madera', 'flower': 'flor', 'fruit': 'fruta', 'gravel': 'grava', 'house': 'casa', 'light': 'luz', 'mirror-stuff': 'espejo', 'net': 'red', 'pillow': 'almohada', 'platform': 'plataforma', 'playingfield': 'cancha de juego', 'railroad': 'ferrocarril', 'river': 'río', 'road': 'camino', 'roof': 'tejado', 'sand': 'arena', 'sea': 'oceano', 'shelf': 'repisas', 'snow': 'nieve', 'stairs': 'escalera', 'tent': 'tienda de campaña', 'towel': 'toalla', 'wall-brick': 'pared de ladrillo', 'wall-stone': 'pared de piedra', 'wall-tile': 'pared de teja', 'wall-wood': 'pared de madera', 'water': 'agua', 'window-blind': 'persiana', 'window': 'ventana', 'tree': 'árbol', 'fence': 'valla', 'ceiling': 'techo', 'sky': 'cielo', 'cabinet': 'gabinete', 'table': 'mesa', 'floor': 'piso', 'pavement': 'pavimento', 'mountain': 'montaña', 'grass': 'pasto', 'dirt': 'tierra', 'paper': 'papel', 'food': 'comida', 'building': 'construcción', 'rock': 'roca', 'wall': 'pared', 'rug': 'alfombra'}
             trans_dict_things = {'person': 'persona', 'bicycle': 'bicicleta', 'car': 'coche', 'motorcycle': 'motocicleta', 'airplane': 'avión', 'bus': 'autobus', 'train': 'tren', 'truck': 'camioneta', 'boat': 'bote', 'traffic light': 'semáforo', 'fire hydrant': 'hidratante', 'stop sign': 'señalización de alto', 'parking meter': 'parquímetro', 'bench': 'banca', 'bird': 'pájaro', 'cat': 'gato', 'dog': 'perro', 'horse': 'caballo', 'sheep': 'oveja', 'cow': 'vaca', 'elephant': 'elefante', 'bear': 'oso', 'zebra': 'cebra', 'giraffe': 'jirafa', 'backpack': 'mochila', 'umbrella': 'sombrilla', 'handbag': 'maleta de mano', 'tie': 'corbata', 'suitcase': 'portafolio', 'frisbee': 'frisbee', 'skis': 'skis', 'snowboard': 'snowboard', 'sports ball': 'balón', 'kite': 'cometa', 'baseball bat': 'bate de baseball', 'baseball glove': 'guante de baseball', 'skateboard': 'patineta', 'surfboard': 'tabla de surf', 'tennis racket': 'raqueta', 'bottle': 'botella', 'wine glass': 'copa de vino', 'cup': 'tasa', 'fork': 'tenedor', 'knife': 'cuchillo', 'spoon': 'cuchara', 'bowl': 'tasón', 'banana': 'plátano', 'apple': 'manzana', 'sandwich': 'sandwich', 'orange': 'naraja', 'broccoli': 'broccoli', 'carrot': 'zanahoria', 'hot dog': 'hot dog', 'pizza': 'pizza', 'donut': 'dona', 'cake': 'pastel', 'chair': 'silla', 'couch': 'sillón', 'potted plant': 'maceta', 'bed': 'cama', 'dining table': 'mesa de comedor', 'toilet': 'escusado', 'tv': 'televisión', 'laptop': 'laptop', 'mouse': 'mouse', 'remote': 'control remoto', 'keyboard': 'teclado', 'cell phone': 'celular', 'microwave': 'microondas', 'oven': 'horno', 'toaster': 'tostador', 'sink': 'lavabo', 'refrigerator': 'refrigerador', 'book': 'libro', 'clock': 'reloj', 'vase': 'jarrón', 'scissors': 'tijeras', 'teddy bear': 'oso de peluche', 'hair drier': 'secadora de pelo', 'toothbrush': 'pasta de dientes'}
             trans_set_stuff = set(trans_dict_stuff.keys())
             trans_set_thing = set(trans_dict_things.keys())
@@ -465,7 +465,7 @@ class Midas:
 
       q1 = np.percentile(img_out, 25)  # First quartile (Q1)
       q2 = np.percentile(img_out, 50)  # Second quartile (Q2 or median)
-      q3 = np.percentile(img_out, 75)  # Third quartile (Q3)
+      q3 = np.percentile(img_out, 95)  # Third quartile (Q3)
 
       proximity_out[proximity_out <= q1] = q1 #far
       proximity_out[(proximity_out > q1) & (proximity_out <= q2)] = q2 #near
@@ -586,9 +586,9 @@ class MobileCam(Midas, Detector):
                       3: 'medio izquierda' , 4: 'medio centro' , 5:'medio derecha' ,
                       6:'inferior izquierda' , 7: 'centro inferior', 8: 'inderior derecha'}
 
-    quad_dict = {0: 'izquierda', 1: 'centro', 2: 'derecha',
-              3: 'izquierda' , 4: 'centro' , 5:'derecha' ,
-              6:'izquierda' , 7: 'centro', 8: 'derecha'}
+    quad_dict = {0: 'derecha', 1: 'centro', 2: 'izquierda',
+              3: 'derecha' , 4: 'centro' , 5:'izquierda' ,
+              6:'derecha' , 7: 'centro', 8: 'izquierda'}
 
     # class unique class id
     id_dict = {l:np.array([]) for l in pred_id}
@@ -777,9 +777,9 @@ class MobileCam(Midas, Detector):
                       3: 'medio izquierda' , 4: 'medio centro' , 5:'medio derecha' ,
                       6:'inferior izquierda' , 7: 'centro inferior', 8: 'inderior derecha'}
 
-        quad_dict = {0: 'izquierda', 1: 'centro', 2: 'derecha',
-                    3: 'izquierda' , 4: 'centro' , 5:'derecha' ,
-                    6:'izquierda' , 7: 'centro', 8: 'derecha'}
+        quad_dict = {0: 'derecha', 1: 'centro', 2: 'izquierda',
+              3: 'derecha' , 4: 'centro' , 5:'izquierda' ,
+              6:'derecha' , 7: 'centro', 8: 'izquierda'}
 
         # class unique class id
         id_dict = {l:np.array([]) for l in pred_id}
@@ -807,20 +807,20 @@ class MobileCam(Midas, Detector):
           [text.append(p[0] + ' '+ p[1] + ' ') for p in vr_vn]
 
         if len(r_vn) > 0:
-          if not vr_vn_len:
-            text.append('\nprecaución acercándose a')
-          [text.append(p[0] + ' '+ p[1] + ' ') for p in r_vn]
-
+          #if not vr_vn_len:
+          #  text.append('\nprecaución acercándose a')
+          #[text.append(p[0] + ' '+ p[1] + ' ') for p in r_vn]
+            pass
         vr_n_l = len(vr_n) > 0
         if vr_n_l:
-          text.append('\npróximamente')
-          [text.append(p[0] + ' '+ p[1] + ' ') for p in vr_n]
-
+          #text.append('\npróximamente')
+          #[text.append(p[0] + ' '+ p[1] + ' ') for p in vr_n]
+            pass
         if len(r_n) > 0:
-          if not vr_n_l:
-            text.append('\npróximamente')
-          [text.append(p[0] + ' '+ p[1] + ' ') for p in r_n]
-
+          #if not vr_n_l:
+          #  text.append('\npróximamente')
+          #[text.append(p[0] + ' '+ p[1] + ' ') for p in r_n]
+            pass
         # Text to speech automatic play
         text = ', '.join(text)
         #print(text)
