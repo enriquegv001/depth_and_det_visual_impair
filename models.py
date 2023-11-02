@@ -362,10 +362,11 @@ class Detector:
           """
 
 class Midas:
-  def __init__(self, model_att, trans_processing, device):
+  def __init__(self, model_att, trans_processing, device, thresh_m):
     self.model_att = model_att
     self.trans_processing = trans_processing
     self.device = device
+    self.thresh_m = thresh_m
 
   def onImage_m(self, imagePath):
       # load image and apply transformers
@@ -430,7 +431,7 @@ class Midas:
       #mymodel = MidasClass(midas, transform)
       #mymodel.onImage_m("./input.jpg")
 
-  def onVideo_m(self, frame, thresh_d):
+  def onVideo_m(self, frame):
       # load image and apply transformers
       start_time = time.time()
       img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -462,8 +463,8 @@ class Midas:
       uniqeu_out = np.unique(proximity_out)
       img_dis = (proximity_out+min(uniqeu_out))*(255/(max(uniqeu_out)-min(uniqeu_out)))
 
-      if thresh_d < np.percentile(img_out, 75):
-        img_out = img_out[img_out < thresh_d]
+      if self.thresh_m < np.percentile(img_out, 75):
+        img_out = img_out[img_out < self.thresh_m]
         p1 = np.percentile(img_out, 25)  # First quartile (Q1)
         p2 = np.percentile(img_out, 60)  # Second quartile (Q2 or median)
         p3 = np.percentile(img_out, 70)  # Third quartile (Q3)
@@ -529,8 +530,8 @@ class Midas:
                 break
 
 class MobileCam(Midas, Detector):
-  def __init__(self, midas_model_att, trans_processing, device, model_type):
-    Midas.__init__(self, midas_model_att, trans_processing, device)
+  def __init__(self, midas_model_att, trans_processing, device, model_type, thresh):
+    Midas.__init__(self, midas_model_att, trans_processing, device, thresh)
     Detector.__init__(self, model_type)
     self.model_type = Detector.get_attributes(self)
 
