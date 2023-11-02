@@ -469,7 +469,7 @@ class Midas:
 
       proximity_out[proximity_out <= q1] = q1 #far
       proximity_out[(proximity_out > q1) & (proximity_out <= q2)] = q2 #near
-      proximity_out[proximity_out > q2] = q3 # very near
+      proximity_out[proximity_out > q3] = q3 # very near
 
       #proximity_out[proximity_out <= q1] = q1 #far
       #proximity_out[(proximity_out > q1) & (proximity_out <= q2)] = q2 #near
