@@ -814,7 +814,7 @@ class MobileCam(Midas, Detector):
             
         vr_n_l = len(vr_n) > 0
         if vr_n_l:
-          text.append('\npróximamente')
+          text.append('\objetos a su')
           iz, fr, de = ['izquierda: '], ['frente: '], ['derecha: ']
           for p in vr_n:
             if p[1] == 'iz':                             
@@ -823,11 +823,11 @@ class MobileCam(Midas, Detector):
               fr.append(p[0] + ' ')
             elif p[1] == 'de':
                de.append(p[0] + ' ')
-          if len(iz) > 0:
+          if len(iz) > 1:
             text.append(' '.join(iz))
-          if len(fr) > 0:
+          if len(fr) > 1:
             text.append(' '.join(fr))
-          if len(de) > 0:
+          if len(de) > 1:
             text.append(' '.join(de))
             
         if len(r_n) > 0:
@@ -844,6 +844,6 @@ class MobileCam(Midas, Detector):
         tts = gTTS(text=text, lang='es') 
         tts.save('1.wav') 
         sound_file = '1.wav'
-        return Audio(sound_file, autoplay=True)
+        #return Audio(sound_file, autoplay=True)
         #cv2.waitKey(3)
 
