@@ -5,7 +5,7 @@ from VideoStreamColab import js_to_image, bbox_to_bytes, video_stream, video_fra
 from setup import call_midas_model
 #midas_model, transform, device = call_midas_model()
 
-# Detectron.py
+# Packages for Detectron2
 # Class reference from https://github.com/evanshlom/detectron2-panoptic-segmentation-video/blob/main/Detector.py
 from detectron2.engine import DefaultPredictor
 from detectron2.config import get_cfg
@@ -14,13 +14,26 @@ from detectron2.utils.visualizer import ColorMode, Visualizer
 from detectron2 import model_zoo
 import inspect
 
-
-
-import torch
-
 import cv2
 from google.colab.patches import cv2_imshow # just inside colab
 import numpy as np
+
+# packages for Midas
+import time
+import torch
+import numpy as np
+#import cv2
+#import tensorflow as tf
+#from tensorflow import keras
+#import tensorflow_hub as hub
+#from tensorflow.keras.models import load_model
+
+# packages for Mobile Cam
+import os 
+os.system('pip install gtts pydub') 
+from gtts import gTTS #Import Google Text to Speech
+from pydub import AudioSegment
+from IPython.display import Audio #Import Audio method from IPython's Display Class
 
 class Detector:
     def __init__(self, model_type="OD"):
@@ -348,20 +361,6 @@ class Detector:
           return MetaDict_stuff
           """
 
-
-# working with pytorch
-import time
-import torch
-import numpy as np
-
-
-#import cv2
-#import tensorflow as tf
-#from tensorflow import keras
-#import tensorflow_hub as hub
-#from tensorflow.keras.models import load_model
-
-
 class Midas:
   def __init__(self, model_att, trans_processing, device):
     self.model_att = model_att
@@ -431,7 +430,7 @@ class Midas:
       #mymodel = MidasClass(midas, transform)
       #mymodel.onImage_m("./input.jpg")
 
-  def onVideo_m(self, frame):
+  def onVideo_m(self, frame, thresh_d):
       # load image and apply transformers
       start_time = time.time()
       img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -463,13 +462,20 @@ class Midas:
       uniqeu_out = np.unique(proximity_out)
       img_dis = (proximity_out+min(uniqeu_out))*(255/(max(uniqeu_out)-min(uniqeu_out)))
 
-      q1 = np.percentile(img_out, 25)  # First quartile (Q1)
-      q2 = np.percentile(img_out, 60)  # Second quartile (Q2 or median)
-      q3 = np.percentile(img_out, 90)  # Third quartile (Q3)
+      if thresh_d < np.percentile(img_out, 75):
+        img_out = img_out[img_out < thresh_d]
+        p1 = np.percentile(img_out, 25)  # First quartile (Q1)
+        p2 = np.percentile(img_out, 60)  # Second quartile (Q2 or median)
+        p3 = np.percentile(img_out, 70)  # Third quartile (Q3)
+      
+      else:
+        p1 = np.percentile(img_out, 25)  # First quartile (Q1)
+        p2 = np.percentile(img_out, 60)  # Second quartile (Q2 or median)
+        p3 = np.percentile(img_out, 90)  # Third quartile (Q3)
 
-      proximity_out[proximity_out <= q1] = q1 #far
-      proximity_out[(proximity_out > q2) & (proximity_out <= q3)] = q2 #near
-      proximity_out[proximity_out > q3] = q3 # very near
+      proximity_out[proximity_out <= p1] = p1 #far
+      proximity_out[(proximity_out > p2) & (proximity_out <= p3)] = p2 #near
+      proximity_out[proximity_out > p3] = p3 # very near
 
       #proximity_out[proximity_out <= q1] = q1 #far
       #proximity_out[(proximity_out > q1) & (proximity_out <= q2)] = q2 #near
@@ -521,13 +527,6 @@ class Midas:
             key = cv2.waitKey(0) & 0xFF
             if key == ord("q"):
                 break
-
-
-import os 
-os.system('pip install gtts pydub') 
-from gtts import gTTS #Import Google Text to Speech
-from pydub import AudioSegment
-from IPython.display import Audio #Import Audio method from IPython's Display Class
 
 class MobileCam(Midas, Detector):
   def __init__(self, midas_model_att, trans_processing, device, model_type):
@@ -721,8 +720,7 @@ class MobileCam(Midas, Detector):
         # create transparent overlay for bounding box
         bbox_array = np.zeros([480,640,4], dtype=np.uint8)
 
-
-        # ========================== hierarchy for stuff ====================================
+        # ========================== hierarchy for obj detection ====================================
         segment_arr, hierarchy_arr, SegmentInfo, bbox_array[:,:,3] = self.onVideo_d(frame)
         segment_arr, hierarchy_arr = segment_arr.T, hierarchy_arr.T
         pred_id = SegmentInfo['id']
@@ -761,7 +759,7 @@ class MobileCam(Midas, Detector):
         if w_mod != 0:
             segment_arr = segment_arr[:, :-w_mod]
 
-        ""# get the amount the amount of pixels they correspond for each quadrant
+        # get the amount the amount of pixels they correspond for each quadrant
         h = len(segment_arr) #// 3
         w = len(segment_arr[0]) // 3
         q_area = h * w
@@ -770,7 +768,7 @@ class MobileCam(Midas, Detector):
         quad = [segment_arr[:h, :w], segment_arr[:h, w:2*w], segment_arr[:h, 2*w:],
             segment_arr[h:2*h, :w], segment_arr[h:2*h, w:2*w], segment_arr[h:2*h, 2*w:],
             segment_arr[2*h:, :w], segment_arr[2*h:, w:2*w], segment_arr[2*h:, 2*w:]
-            ] # quadrants"""""
+            ] # quadrants"""
         # devided into grid of 3 x 3
         quad = [segment_arr[:, :w], segment_arr[:, w:2*w], segment_arr[:, 2*w:]] # quadrants""
 
@@ -806,16 +804,16 @@ class MobileCam(Midas, Detector):
         #  #[print(p[0] + ' '+ p[1] + ' ') for p in vr_vn]
         #  [text.append(p[0] + ' '+ p[1] + ' ') for p in vr_vn]
 
-        if len(r_vn) > 0:
+        #if len(r_vn) > 0:
           #if not vr_vn_len:
-          text.append('\nprecaución acercándose a')
-          [text.append(p[0] + ' '+ p[1] + ' ') for p in r_vn]
+          #text.append('\nprecaución acercándose a')
+          #[text.append(p[0] + ' '+ p[1] + ' ') for p in r_vn]
             
         vr_n_l = len(vr_n) > 0
         if vr_n_l:
-          #text.append('\npróximamente')
-          #[text.append(p[0] + ' '+ p[1] + ' ') for p in vr_n]
-            pass
+          text.append('\npróximamente')
+          [text.append(p[0] + ' '+ p[1] + ' ') for p in vr_n]
+            
         if len(r_n) > 0:
           #if not vr_n_l:
           #  text.append('\npróximamente')
