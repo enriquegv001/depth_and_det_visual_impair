@@ -770,7 +770,7 @@ class MobileCam(Midas, Detector):
             segment_arr[h:2*h, :w], segment_arr[h:2*h, w:2*w], segment_arr[h:2*h, 2*w:],
             segment_arr[2*h:, :w], segment_arr[2*h:, w:2*w], segment_arr[2*h:, 2*w:]
             ] # quadrants"""
-        # devided into grid of 3 x 3
+        # devided into grid of 3 x 1
         quad = [segment_arr[:, :w], segment_arr[:, w:2*w], segment_arr[:, 2*w:]] # quadrants""
 
         # get the prediction for each label
@@ -778,7 +778,7 @@ class MobileCam(Midas, Detector):
         #              3: 'medio izquierda' , 4: 'medio centro' , 5:'medio derecha' ,
         #              6:'inferior izquierda' , 7: 'centro inferior', 8: 'inderior derecha'}
 
-        quad_dict = {0: 'izquierda', 1: 'centro', 2: 'derecha'}
+        quad_dict = {0: 'iz', 1: 'fr', 2: 'de'}
 
         # class unique class id
         id_dict = {l:np.array([]) for l in pred_id}
@@ -813,7 +813,15 @@ class MobileCam(Midas, Detector):
         vr_n_l = len(vr_n) > 0
         if vr_n_l:
           text.append('\npróximamente')
-          [text.append(p[0] + ' '+ p[1] + ' ') for p in vr_n]
+          iz, fr, de = ['izquieda: '], ['frente: '], ['derecha: ']
+          for p in vr_n:
+            if p[1] == 'iz':                 
+              iz.append(p[0] + ' ')
+            elif p[1] == 'fr':                 
+              fr.append(p[0] + ' ')
+            elif p[2] == 'de':
+               de.append(p[0] + ' ')
+          text.append(' '.join(iz) + ' '.join(fr), ' '.join(de))
             
         if len(r_n) > 0:
           #if not vr_n_l:
@@ -822,6 +830,7 @@ class MobileCam(Midas, Detector):
             pass
         if len(text)==0:
           text =['  Sin objetos relevantes  ']
+
         # Text to speech automatic play
         text = ', '.join(text)
         #print(text)
