@@ -1,6 +1,4 @@
-
 from VideoStreamColab import js_to_image, bbox_to_bytes, video_stream, video_frame
-
 
 from setup import call_midas_model
 #midas_model, transform, device = call_midas_model()
@@ -561,7 +559,6 @@ class MobileCam(Midas, Detector):
     segment_rvn[depth_array != depth_thresh[-1]] = 0 # Relevant and very near
     segment_vrn[depth_array != depth_thresh[-2]] = 0 # Very Relevant and near
     segment_rn[depth_array != depth_thresh[-2]] = 0 # Relevant and near
-    print(depth_thresh)
     # ============ Predict the poistion for each object / stuff detected ===================
     h_mod = len(segment_arr) % 3
     w_mod = len(segment_arr[0]) % 3
@@ -572,23 +569,23 @@ class MobileCam(Midas, Detector):
 
     # get the amount the amount of pixels they correspond for each quadrant
     h = len(segment_arr) // 3
-    w = len(segment_arr[0]) // 3
+    w = len(segment_arr[0]) #// 3
     q_area = h * w
 
-    # devided into grid of 3 x 3
+    """# devided into grid of 3 x 3
     quad = [segment_arr[:h, :w], segment_arr[:h, w:2*w], segment_arr[:h, 2*w:],
         segment_arr[h:2*h, :w], segment_arr[h:2*h, w:2*w], segment_arr[h:2*h, 2*w:],
         segment_arr[2*h:, :w], segment_arr[2*h:, w:2*w], segment_arr[2*h:, 2*w:]
-        ] # quadrants
+        ] # quadrants"""
+    # devided into grid of 3 x 1
+    quad = [segment_arr[:h, :], segment_arr[h:2*h, :], segment_arr[2*h:, :]] # quadrants""
 
     # get the prediction for each label
-    quad_dict = {0: 'superior izquierda', 1: 'centro superior', 2: 'superior derecha',
-                      3: 'medio izquierda' , 4: 'medio centro' , 5:'medio derecha' ,
-                      6:'inferior izquierda' , 7: 'centro inferior', 8: 'inderior derecha'}
+    #quad_dict = {0: 'superior izquierda', 1: 'centro superior', 2: 'superior derecha',
+    #              3: 'medio izquierda' , 4: 'medio centro' , 5:'medio derecha' ,
+    #              6:'inferior izquierda' , 7: 'centro inferior', 8: 'inderior derecha'}
 
-    quad_dict = {0: 'derecha', 1: 'centro', 2: 'izquierda',
-              3: 'derecha' , 4: 'centro' , 5:'izquierda' ,
-              6:'derecha' , 7: 'centro', 8: 'izquierda'}
+    quad_dict = {0: 'de', 1: 'fr', 2: 'iz'}
 
     # class unique class id
     id_dict = {l:np.array([]) for l in pred_id}
@@ -596,7 +593,7 @@ class MobileCam(Midas, Detector):
     for k in id_dict:
         for q in quad:
             id_dict[k] = np.append(len(q[q == k]), id_dict[k])
-        id_dict[k] = id_dict[k]/q_area
+        #id_dict[k] = id_dict[k]/q_area
         id_dict[k] = quad_dict[np.where(id_dict[k] == max(id_dict[k]))[0][0]] #[::-1] index for quadrant
     #print(id_dict)
 
@@ -607,31 +604,48 @@ class MobileCam(Midas, Detector):
     vr_n = [(pred_class[pred_id.index(i)], id_dict[i]) for i in np.unique(segment_vrn) if i != 0]
     r_n = [(pred_class[pred_id.index(i)], id_dict[i]) for i in np.unique(segment_rn) if i != 0]
 
+
     text = []
     vr_vn_len = len(vr_vn) > 0
-    if vr_vn_len:
-      text.append('\nprecaución acercándose a')
-      #[print(p[0] + ' '+ p[1] + ' ') for p in vr_vn]
-      [text.append(p[0] + ' '+ p[1] + ' ') for p in vr_vn]
+    #if vr_vn_len:
+    #  text.append('\nprecaución acercándose a')
+    #  #[print(p[0] + ' '+ p[1] + ' ') for p in vr_vn]
+    #  [text.append(p[0] + ' '+ p[1] + ' ') for p in vr_vn]
 
-    if len(r_vn) > 0:
-      if not vr_vn_len:
-        text.append('\nprecaución acercándose a')
-      [text.append(p[0] + ' '+ p[1] + ' ') for p in r_vn]
-
+    #if len(r_vn) > 0:
+      #if not vr_vn_len:
+      #text.append('\nprecaución acercándose a')
+      #[text.append(p[0] + ' '+ p[1] + ' ') for p in r_vn]
+        
     vr_n_l = len(vr_n) > 0
     if vr_n_l:
-      text.append('\npróximamente')
-      [text.append(p[0] + ' '+ p[1] + ' ') for p in vr_n]
-
+      text.append('\nobjetos')
+      iz, fr, de = ['a su izquierda: '], ['al frente: '], ['a su derecha: ']
+      for p in vr_n:
+        if p[1] == 'iz':                             
+          iz.append(p[0] + ', ')
+        elif p[1] == 'fr':                 
+          fr.append(p[0] + ', ')
+        elif p[1] == 'de':
+            de.append(p[0] + ', ')
+      if len(iz) > 1:
+        text.append(' '.join(iz))
+      if len(fr) > 1:
+        text.append(' '.join(fr))
+      if len(de) > 1:
+        text.append(' '.join(de))
+        
     if len(r_n) > 0:
-      if not vr_n_l:
-        text.append('\npróximamente')
-      [text.append(p[0] + ' '+ p[1] + ' ') for p in r_n]
+      #if not vr_n_l:
+      #  text.append('\npróximamente')
+      #[text.append(p[0] + ' '+ p[1] + ' ') for p in r_n]
+        pass
+    if len(text)==0:
+      text =['  Sin objetos relevantes  ']
 
     # Text to speech automatic play
-    text = ', '.join(text)
-    #print(text)
+    text = ' '.join(text)
+    print(text)
     tts = gTTS(text=text, lang='es') 
     tts.save('1.wav') 
     sound_file = '1.wav'
@@ -814,15 +828,15 @@ class MobileCam(Midas, Detector):
             
         vr_n_l = len(vr_n) > 0
         if vr_n_l:
-          text.append('\objetos a su')
-          iz, fr, de = ['izquierda: '], ['frente: '], ['derecha: ']
+          text.append('\nobjetos')
+          iz, fr, de = ['a su izquierda: '], ['al frente: '], ['a su derecha: ']
           for p in vr_n:
             if p[1] == 'iz':                             
-              iz.append(p[0] + ' ')
+              iz.append(p[0] + ', ')
             elif p[1] == 'fr':                 
-              fr.append(p[0] + ' ')
+              fr.append(p[0] + ', ')
             elif p[1] == 'de':
-               de.append(p[0] + ' ')
+               de.append(p[0] + ', ')
           if len(iz) > 1:
             text.append(' '.join(iz))
           if len(fr) > 1:
@@ -839,11 +853,11 @@ class MobileCam(Midas, Detector):
           text =['  Sin objetos relevantes  ']
 
         # Text to speech automatic play
-        text = ', '.join(text)
-        print(text)
+        text = ' '.join(text)
+        #print(text)
         tts = gTTS(text=text, lang='es') 
         tts.save('1.wav') 
         sound_file = '1.wav'
-        #return Audio(sound_file, autoplay=True)
+        return Audio(sound_file, autoplay=True)
         #cv2.waitKey(3)
 
