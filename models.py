@@ -815,13 +815,18 @@ class MobileCam(Midas, Detector):
           text.append('\npróximamente')
           iz, fr, de = ['izquieda: '], ['frente: '], ['derecha: ']
           for p in vr_n:
-            if p[1] == 'iz':                 
+            if p[1] == 'iz':                             
               iz.append(p[0] + ' ')
             elif p[1] == 'fr':                 
               fr.append(p[0] + ' ')
-            elif p[2] == 'de':
+            elif p[1] == 'de':
                de.append(p[0] + ' ')
-          text.append(' '.join(iz) + ' '.join(fr), ' '.join(de))
+          if len(iz) > 0:
+            text.append(' '.join(iz))
+          if len(fr) > 0:
+            text.append(' '.join(fr))
+          if len(de) > 0:
+            text.append(' '.join(de))
             
         if len(r_n) > 0:
           #if not vr_n_l:
