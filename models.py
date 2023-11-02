@@ -415,7 +415,8 @@ class Midas:
       #plt.imshow(proximity_out)
       #img_dis = (proximity_out/256).astype(np.uint8)
       #cv2.applyColorMap(img_dis, cv2.COLORMAP_PLASMA)
-      cv2_imshow(img_dis)
+      #cv2_imshow(img_dis)
+      cv2_imshow(proximity_out)
       return proximity_out
 
       """
