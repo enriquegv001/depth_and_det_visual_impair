@@ -410,9 +410,9 @@ class Midas:
         p2 = np.percentile(img_out, 60)  # Second quartile (Q2 or median)
         p3 = np.percentile(img_out, 90)  # Third quartile (Q3)
 
-      proximity_out[proximity_out <= p1] = p1 #far
-      proximity_out[(proximity_out > p2) & (proximity_out <= p3)] = p2 #near
-      proximity_out[proximity_out > p3] = p3 # very near
+      proximity_out[proximity_out <= p1] = 0 #far
+      proximity_out[(proximity_out > p2) & (proximity_out <= p3)] = 100 #near
+      proximity_out[proximity_out > p3] = 255 # very near
 
       #proximity_out[proximity_out <= q1] = q1 #far
       #proximity_out[(proximity_out > q1) & (proximity_out <= q2)] = q2 #near
