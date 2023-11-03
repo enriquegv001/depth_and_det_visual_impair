@@ -386,6 +386,7 @@ class Midas:
           ).squeeze() # remove extra dims
 
       img_out = prediction.cpu().numpy()
+      cv2_imshow(img_out)
       img_transpose = img_out.T # values are inverted
       #print(img_transpose[:30, -30:])
       #plt.imshow(proximity_out)
@@ -397,9 +398,9 @@ class Midas:
       #print(img_outTranspose)
       proximity_out = img_out.copy()
       uniqeu_out = np.unique(proximity_out)
-      img_dis = (proximity_out+min(uniqeu_out))*(255/(max(uniqeu_out)-min(uniqeu_out)))
+      proximity_out = (proximity_out+min(uniqeu_out))*(255/(max(uniqeu_out)-min(uniqeu_out)))
 
-      if self.thresh_m < np.percentile(img_out, 75):
+      if self.thresh_m < np.percentile(proximity_out, 75):
         print('pixels distribution reduced')
         img_out = img_out[img_out < self.thresh_m]
         p1 = np.percentile(img_out, 25)  # First quartile (Q1)
@@ -413,19 +414,26 @@ class Midas:
         p3 = np.percentile(img_out, 90)  # Third quartile (Q3)
 
       print('Percentiles: ', p1, p2, p3)
-      proximity_out[proximity_out <= p1] = 0 #far
-      proximity_out[(proximity_out > p2) & (proximity_out <= p3)] = 180 #near
-      proximity_out[proximity_out > p3] = 255 # very near
+      proximity_out[proximity_out <= p2] = p1 #far
+      proximity_out[(proximity_out > p2) & (proximity_out <= p3)] = p2 #near
+      proximity_out[proximity_out > p3] = p3 # very near
+      print('prox out: ',proximity_out,'type prox: ', type(proximity_out) ,'len unique: ', len(np.unique(proximity_out)))
 
+      # rescaling for visualization
+      proximity_out[proximity_out == p1] = 0 #far
+      proximity_out[proximity_out == p2] = 150 #near
+      proximity_out[proximity_out == p3] = 255 # very near
+      cv2_imshow(proximity_out)
       #proximity_out[proximity_out <= q1] = q1 #far
       #proximity_out[(proximity_out > q1) & (proximity_out <= q2)] = q2 #near
       #proximity_out[proximity_out > q2] = q3 # very near
 
       #==================================== display image=======================================
       #plt.imshow(proximity_out)
-      #img_dis = (proximity_out/256).astype(np.uint8)
-      #cv2.applyColorMap(img_dis, cv2.COLORMAP_PLASMA)
-      cv2_imshow(proximity_out)
+      #proximity_out = (proximity_out/256).astype(np.uint8)
+      #cv2.applyColorMap(proximity_out, cv2.COLORMAP_PLASMA)
+      #cv2_imshow(proximity_out)
+      
       return proximity_out
 
       """
@@ -565,7 +573,7 @@ class MobileCam(Midas, Detector):
     depth_array = self.onImage_m(path)
     #depth_array = depth_array.T
     depth_thresh = np.unique(depth_array)
-    print(depth_thresh, depth_thresh[-1], depth_thresh[-2])
+    print('unique depthmap:', np.unique(depth_thresh))
     segment_vrvn[depth_array != depth_thresh[-1]] = 0 # Very Relevant and very near
     segment_rvn[depth_array != depth_thresh[-1]] = 0 # Relevant and very near
     segment_vrn[depth_array != depth_thresh[-2]] = 0 # Very Relevant and near
