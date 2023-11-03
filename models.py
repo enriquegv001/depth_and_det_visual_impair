@@ -388,7 +388,7 @@ class Midas:
       img_out = prediction.cpu().numpy()
       print('\ninitial midas')
       cv2_imshow(img_out)
-      img_transpose = img_out.T # values are inverted
+      #img_transpose = img_out.T # values are inverted
       #print(img_transpose[:30, -30:])
       #plt.imshow(proximity_out)
       # plt.show()
@@ -396,13 +396,12 @@ class Midas:
       #print('prections pos-processing done')
 
       #===============================Algorithm for proximity===============================
-      
-      #proximity_out = img_out.copy()
-      proximity_out = img_transpose.copy()
+      proximity_out = img_out.copy()
       unique_out = np.unique(proximity_out)
       proximity_out = (proximity_out+min(unique_out))*(255/(max(unique_out)-min(unique_out)))
       print('\nnormalized to range(0,255)')
       cv2_imshow(proximity_out)
+      
       if self.thresh_m > np.percentile(proximity_out, 75):
         print('pixels distribution reduced')
         new_px_dis = proximity_out[proximity_out < self.thresh_m] # cut the pixels distribution
@@ -425,7 +424,8 @@ class Midas:
       proximity_out[proximity_out == p1] = 0 #far
       proximity_out[proximity_out == p2] = 150 #near
       proximity_out[proximity_out == p3] = 255 # very near
-      cv2_imshow(proximity_out)
+      #just the display is working for rotation, but is programed for 180° rot
+      cv2_imshow(np.rot90(proximity_out, 2)) 
       #proximity_out[proximity_out <= q1] = q1 #far
       #proximity_out[(proximity_out > q1) & (proximity_out <= q2)] = q2 #near
       #proximity_out[proximity_out > q2] = q3 # very near
@@ -583,7 +583,7 @@ class MobileCam(Midas, Detector):
     print('unique depthmap:', np.unique(depth_thresh), '\nnear and very relevant')
     seg_out = segment_vrn.copy()
     seg_out[seg_out != 0] = 150
-    cv2_imshow(seg_out)
+    cv2_imshow(np.rot90(seg_out, 2))
 
     # ============ Predict the poistion for each object / stuff detected ===================
     h_mod = len(segment_arr) % 3
