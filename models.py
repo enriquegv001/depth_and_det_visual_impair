@@ -386,8 +386,8 @@ class Midas:
           ).squeeze() # remove extra dims
 
       img_out = prediction.cpu().numpy()
-      print('\ninitial midas')
-      cv2_imshow(img_out)
+      #print('\ninitial midas')
+      #cv2_imshow(img_out)
       #img_transpose = img_out.T # values are inverted
       #print(img_transpose[:30, -30:])
       #plt.imshow(proximity_out)
