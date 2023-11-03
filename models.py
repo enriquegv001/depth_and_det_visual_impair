@@ -647,14 +647,14 @@ class MobileCam(Midas, Detector):
     vr_n_l = len(vr_n) > 0
     if vr_n_l:
       text.append('\nobjetos')
-      iz, fr, de = ['a su izquierda: '], ['al frente: '], ['a su derecha: ']
+      iz, fr, de = [', a su izquierda: '], [', al frente: '], [', a su derecha: ']
       for p in vr_n:
         if p[1] == 'iz':                             
-          iz.append(p[0] + ', ')
+          iz.append(p[0] + ' ')
         elif p[1] == 'fr':                 
-          fr.append(p[0] + ', ')
+          fr.append(p[0] + ' ')
         elif p[1] == 'de':
-            de.append(p[0] + ', ')
+            de.append(p[0] + ' ')
       if len(iz) > 1:
         text.append(' '.join(iz))
       if len(fr) > 1:
@@ -856,14 +856,14 @@ class MobileCam(Midas, Detector):
         vr_n_l = len(vr_n) > 0
         if vr_n_l:
           text.append('\nobjetos')
-          iz, fr, de = ['a su izquierda: '], ['al frente: '], ['a su derecha: ']
+          iz, fr, de = [', a su izquierda: '], [', al frente: '], [', a su derecha: ']
           for p in vr_n:
             if p[1] == 'iz':                             
-              iz.append(p[0] + ', ')
+              iz.append(p[0] + ' ')
             elif p[1] == 'fr':                 
-              fr.append(p[0] + ', ')
+              fr.append(p[0] + ' ')
             elif p[1] == 'de':
-               de.append(p[0] + ', ')
+               de.append(p[0] + ' ')
           if len(iz) > 1:
             text.append(' '.join(iz))
           if len(fr) > 1:
