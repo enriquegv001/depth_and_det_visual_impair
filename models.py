@@ -402,7 +402,7 @@ class Midas:
       proximity_out = (proximity_out+min(unique_out))*(255/(max(unique_out)-min(unique_out)))
       print('\nnormalized to range(0,255)')
       cv2_imshow(proximity_out)
-      if self.thresh_m < np.percentile(proximity_out, 75):
+      if self.thresh_m > np.percentile(proximity_out, 75):
         print('pixels distribution reduced')
         new_px_dis = proximity_out[proximity_out < self.thresh_m] # cut the pixels distribution
         p1 = np.percentile(new_px_dis, 25)  # First quartile (Q1)
