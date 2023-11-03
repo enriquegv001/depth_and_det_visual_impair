@@ -411,8 +411,8 @@ class Midas:
         p3 = np.percentile(img_out, 90)  # Third quartile (Q3)
 
       proximity_out[proximity_out <= p1] = 0 #far
-      proximity_out[(proximity_out > p2) & (proximity_out <= p3)] = 180 #near
-      proximity_out[proximity_out > p3] = 255 # very near
+      proximity_out[(proximity_out > p2) & (proximity_out <= p3)] = 255 #near
+      proximity_out[proximity_out > p3] = 200 # very near
 
       #proximity_out[proximity_out <= q1] = q1 #far
       #proximity_out[(proximity_out > q1) & (proximity_out <= q2)] = q2 #near
@@ -610,7 +610,7 @@ class MobileCam(Midas, Detector):
     r_vn = [(pred_class[pred_id.index(i)], id_dict[i]) for i in np.unique(segment_rvn) if i != 0]
     vr_n = [(pred_class[pred_id.index(i)], id_dict[i]) for i in np.unique(segment_vrn) if i != 0]
     r_n = [(pred_class[pred_id.index(i)], id_dict[i]) for i in np.unique(segment_rn) if i != 0]
-    print(vr_vn, r_vn, vr_n, r_n)
+    print('vr_vn:', vr_vn, '\nr_vn:', r_vn, '\nvr_n:', vr_n, '\nr_n:', r_n)
 
     text = []
     vr_vn_len = len(vr_vn) > 0
@@ -652,7 +652,7 @@ class MobileCam(Midas, Detector):
 
     # Text to speech automatic play
     text = ' '.join(text)
-    print(text)
+    #print(text)
     tts = gTTS(text=text, lang='es') 
     tts.save('1.wav') 
     sound_file = '1.wav'
