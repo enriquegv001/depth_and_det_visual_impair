@@ -565,10 +565,14 @@ class MobileCam(Midas, Detector):
     depth_array = self.onImage_m(path)
     #depth_array = depth_array.T
     depth_thresh = np.unique(depth_array)
+    print(depth_thresh, depth_thresh[-1], depth_thresh[-2])
     segment_vrvn[depth_array != depth_thresh[-1]] = 0 # Very Relevant and very near
     segment_rvn[depth_array != depth_thresh[-1]] = 0 # Relevant and very near
     segment_vrn[depth_array != depth_thresh[-2]] = 0 # Very Relevant and near
     segment_rn[depth_array != depth_thresh[-2]] = 0 # Relevant and near
+
+    cv2_imshow(segment_vrn)
+
     # ============ Predict the poistion for each object / stuff detected ===================
     h_mod = len(segment_arr) % 3
     w_mod = len(segment_arr[0]) % 3
@@ -587,6 +591,7 @@ class MobileCam(Midas, Detector):
         segment_arr[h:2*h, :w], segment_arr[h:2*h, w:2*w], segment_arr[h:2*h, 2*w:],
         segment_arr[2*h:, :w], segment_arr[2*h:, w:2*w], segment_arr[2*h:, 2*w:]
         ] # quadrants"""
+    
     # devided into grid of 3 x 1
     quad = [segment_arr[:h, :], segment_arr[h:2*h, :], segment_arr[2*h:, :]] # quadrants""
 
