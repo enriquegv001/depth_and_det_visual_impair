@@ -400,19 +400,22 @@ class Midas:
       img_dis = (proximity_out+min(uniqeu_out))*(255/(max(uniqeu_out)-min(uniqeu_out)))
 
       if self.thresh_m < np.percentile(img_out, 75):
+        print('pixels distribution reduced')
         img_out = img_out[img_out < self.thresh_m]
         p1 = np.percentile(img_out, 25)  # First quartile (Q1)
         p2 = np.percentile(img_out, 60)  # Second quartile (Q2 or median)
         p3 = np.percentile(img_out, 70)  # Third quartile (Q3)
       
       else:
+        print('pixels distribution mantained')
         p1 = np.percentile(img_out, 25)  # First quartile (Q1)
         p2 = np.percentile(img_out, 60)  # Second quartile (Q2 or median)
         p3 = np.percentile(img_out, 90)  # Third quartile (Q3)
 
+      print('Percentiles: ', p1, p2, p3)
       proximity_out[proximity_out <= p1] = 0 #far
-      proximity_out[(proximity_out > p2) & (proximity_out <= p3)] = 255 #near
-      proximity_out[proximity_out > p3] = 200 # very near
+      proximity_out[(proximity_out > p2) & (proximity_out <= p3)] = 180 #near
+      proximity_out[proximity_out > p3] = 255 # very near
 
       #proximity_out[proximity_out <= q1] = q1 #far
       #proximity_out[(proximity_out > q1) & (proximity_out <= q2)] = q2 #near
