@@ -406,14 +406,14 @@ class Midas:
         print('pixels distribution reduced')
         new_px_dis = proximity_out[proximity_out < self.thresh_m] # cut the pixels distribution
         p1 = np.percentile(new_px_dis, 25)  # First quartile (Q1)
-        p2 = np.percentile(new_px_dis, 50)  # Second quartile (Q2 or median)
-        p3 = np.percentile(new_px_dis, 90)  # Third quartile (Q3)
+        p2 = np.percentile(new_px_dis, 35)  # Second quartile (Q2 or median)
+        p3 = np.percentile(new_px_dis, 75)  # Third quartile (Q3)
       
       else:
         print('pixels distribution mantained')
         p1 = np.percentile(proximity_out, 25)  # First quartile (Q1)
-        p2 = np.percentile(proximity_out, 50)  # Second quartile (Q2 or median)
-        p3 = np.percentile(proximity_out, 75)  # Third quartile (Q3)
+        p2 = np.percentile(proximity_out, 40)  # Second quartile (Q2 or median)
+        p3 = np.percentile(proximity_out, 80)  # Third quartile (Q3)
 
       print('Percentiles: ', p1, p2, p3)
       proximity_out[proximity_out <= p2] = p1 #far
