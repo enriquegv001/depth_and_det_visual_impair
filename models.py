@@ -386,6 +386,7 @@ class Midas:
           ).squeeze() # remove extra dims
 
       img_out = prediction.cpu().numpy()
+      print('\ninitial midas')
       cv2_imshow(img_out)
       img_transpose = img_out.T # values are inverted
       #print(img_transpose[:30, -30:])
@@ -395,29 +396,29 @@ class Midas:
       #print('prections pos-processing done')
 
       #===============================Algorithm for proximity===============================
-      #print(img_outTranspose)
+      
       proximity_out = img_out.copy()
-      uniqeu_out = np.unique(proximity_out)
-      proximity_out = (proximity_out+min(uniqeu_out))*(255/(max(uniqeu_out)-min(uniqeu_out)))
-
+      unique_out = np.unique(proximity_out)
+      proximity_out = (proximity_out+min(unique_out))*(255/(max(unique_out)-min(unique_out)))
+      print('\nnormalized to range(0,255)')
+      cv2_imshow(proximity_out)
       if self.thresh_m < np.percentile(proximity_out, 75):
         print('pixels distribution reduced')
-        img_out = img_out[img_out < self.thresh_m]
-        p1 = np.percentile(img_out, 25)  # First quartile (Q1)
-        p2 = np.percentile(img_out, 60)  # Second quartile (Q2 or median)
-        p3 = np.percentile(img_out, 70)  # Third quartile (Q3)
+        new_px_dis = proximity_out[proximity_out < self.thresh_m] # cut the pixels distribution
+        p1 = np.percentile(new_px_dis, 25)  # First quartile (Q1)
+        p2 = np.percentile(new_px_dis, 50)  # Second quartile (Q2 or median)
+        p3 = np.percentile(new_px_dis, 90)  # Third quartile (Q3)
       
       else:
         print('pixels distribution mantained')
-        p1 = np.percentile(img_out, 25)  # First quartile (Q1)
-        p2 = np.percentile(img_out, 60)  # Second quartile (Q2 or median)
-        p3 = np.percentile(img_out, 90)  # Third quartile (Q3)
+        p1 = np.percentile(proximity_out, 25)  # First quartile (Q1)
+        p2 = np.percentile(proximity_out, 50)  # Second quartile (Q2 or median)
+        p3 = np.percentile(proximity_out, 75)  # Third quartile (Q3)
 
       print('Percentiles: ', p1, p2, p3)
       proximity_out[proximity_out <= p2] = p1 #far
       proximity_out[(proximity_out > p2) & (proximity_out <= p3)] = p2 #near
       proximity_out[proximity_out > p3] = p3 # very near
-      print('prox out: ',proximity_out,'type prox: ', type(proximity_out) ,'len unique: ', len(np.unique(proximity_out)))
 
       # rescaling for visualization
       proximity_out[proximity_out == p1] = 0 #far
@@ -427,7 +428,6 @@ class Midas:
       #proximity_out[proximity_out <= q1] = q1 #far
       #proximity_out[(proximity_out > q1) & (proximity_out <= q2)] = q2 #near
       #proximity_out[proximity_out > q2] = q3 # very near
-
       #==================================== display image=======================================
       #plt.imshow(proximity_out)
       #proximity_out = (proximity_out/256).astype(np.uint8)
@@ -573,13 +573,16 @@ class MobileCam(Midas, Detector):
     depth_array = self.onImage_m(path)
     #depth_array = depth_array.T
     depth_thresh = np.unique(depth_array)
-    print('unique depthmap:', np.unique(depth_thresh))
     segment_vrvn[depth_array != depth_thresh[-1]] = 0 # Very Relevant and very near
     segment_rvn[depth_array != depth_thresh[-1]] = 0 # Relevant and very near
     segment_vrn[depth_array != depth_thresh[-2]] = 0 # Very Relevant and near
     segment_rn[depth_array != depth_thresh[-2]] = 0 # Relevant and near
 
-    cv2_imshow(segment_vrn)
+    #test visualization
+    print('unique depthmap:', np.unique(depth_thresh), '\nnear and very relevant')
+    seg_out = segment_vrn.copy()
+    seg_out[seg_out != 0] = 150
+    cv2_imshow(seg_out)
 
     # ============ Predict the poistion for each object / stuff detected ===================
     h_mod = len(segment_arr) % 3
