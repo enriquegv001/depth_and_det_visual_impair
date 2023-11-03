@@ -397,7 +397,8 @@ class Midas:
 
       #===============================Algorithm for proximity===============================
       
-      proximity_out = img_out.copy()
+      #proximity_out = img_out.copy()
+      proximity_out = img_transpose.copy()
       unique_out = np.unique(proximity_out)
       proximity_out = (proximity_out+min(unique_out))*(255/(max(unique_out)-min(unique_out)))
       print('\nnormalized to range(0,255)')
