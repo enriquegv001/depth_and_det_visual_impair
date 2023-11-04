@@ -20,6 +20,7 @@ import numpy as np
 import time
 import torch
 import numpy as np
+import matplotlib.pyplot as plt
 #import cv2
 #import tensorflow as tf
 #from tensorflow import keras
@@ -404,8 +405,15 @@ class Midas:
       proximity_out = img_out.copy()
       unique_out = np.unique(proximity_out)
       proximity_out = (proximity_out+min(unique_out))*(255/(max(unique_out)-min(unique_out)))
+      
       print('\nnormalized to range(0,255)')
-      cv2_imshow(proximity_out)
+      fig, ax = plt.subplots()
+      ax.imshow(proximity_out)
+      w = len(proximity_out[0]) / 3
+      ax.axvline(x= w, color='red', linestyle='--', linewidth=2) 
+      ax.axvline(x= w*2 , color='red', linestyle='--', linewidth=2) 
+      plt.show()
+      #cv2_imshow(proximity_out)
       
       if self.thresh_m > np.percentile(proximity_out, 75):
         print('pixels distribution reduced')
