@@ -415,18 +415,18 @@ class Midas:
       plt.show()
       #cv2_imshow(proximity_out)
       
-      if self.thresh_m > np.percentile(proximity_out, 75):
+      if self.thresh_m < np.percentile(proximity_out, 75):
         print('pixels distribution reduced')
         new_px_dis = proximity_out[proximity_out < self.thresh_m] # cut the pixels distribution
         p1 = np.percentile(new_px_dis, 25)  # First quartile (Q1)
-        p2 = np.percentile(new_px_dis, 35)  # Second quartile (Q2 or median)
-        p3 = np.percentile(new_px_dis, 75)  # Third quartile (Q3)
+        p2 = np.percentile(new_px_dis, 75)  # Second quartile (Q2 or median)
+        p3 = np.percentile(new_px_dis, 95)  # Third quartile (Q3)
       
       else:
         print('pixels distribution mantained')
         p1 = np.percentile(proximity_out, 25)  # First quartile (Q1)
-        p2 = np.percentile(proximity_out, 60)  # Second quartile (Q2 or median)
-        p3 = np.percentile(proximity_out, 80)  # Third quartile (Q3)
+        p2 = np.percentile(proximity_out, 70)  # Second quartile (Q2 or median)
+        p3 = np.percentile(proximity_out, 90)  # Third quartile (Q3)
 
       print('Percentiles: ', p1, p2, p3)
       proximity_out[proximity_out <= p2] = p1 #far
@@ -438,8 +438,8 @@ class Midas:
       proximity_out[proximity_out == p2] = 150 #near
       proximity_out[proximity_out == p3] = 255 # very near
       #just the display is working for rotation, but is programed for 180° rot
-      #cv2_imshow(np.rot90(proximity_out, 2))
-      cv2_imshow(proximity_out)  
+      cv2_imshow(np.rot90(proximity_out, 2))
+      #cv2_imshow(proximity_out)  
       #proximity_out[proximity_out <= q1] = q1 #far
       #proximity_out[(proximity_out > q1) & (proximity_out <= q2)] = q2 #near
       #proximity_out[proximity_out > q2] = q3 # very near
@@ -597,8 +597,8 @@ class MobileCam(Midas, Detector):
     print('unique depthmap:', np.unique(depth_thresh), '\nnear and very relevant')
     seg_out = segment_vrn.copy()
     seg_out[seg_out != 0] = 150
-    #cv2_imshow(np.rot90(seg_out, 2))
-    cv2_imshow(seg_out)  
+    cv2_imshow(np.rot90(seg_out, 2))
+    #cv2_imshow(seg_out)  
     # ============ Predict the poistion for each object / stuff detected ===================
     h_mod = len(segment_arr) % 3
     w_mod = len(segment_arr[0]) % 3
@@ -608,8 +608,8 @@ class MobileCam(Midas, Detector):
         segment_arr = segment_arr[:, :-w_mod]
 
     # get the amount the amount of pixels they correspond for each quadrant
-    h = len(segment_arr) // 3
-    w = len(segment_arr[0]) #// 3
+    h = len(segment_arr) # // 3
+    w = len(segment_arr[0]) // 3
     q_area = h * w
 
     """# devided into grid of 3 x 3
@@ -619,14 +619,14 @@ class MobileCam(Midas, Detector):
         ] # quadrants"""
     
     # devided into grid of 3 x 1
-    quad = [segment_arr[:h, :], segment_arr[h:2*h, :], segment_arr[2*h:, :]] # quadrants""
+    quad = [segment_arr[:, :w], segment_arr[:, w:2*w], segment_arr[:, 2*w:]] # quadrants""
 
     # get the prediction for each label
     #quad_dict = {0: 'superior izquierda', 1: 'centro superior', 2: 'superior derecha',
     #              3: 'medio izquierda' , 4: 'medio centro' , 5:'medio derecha' ,
     #              6:'inferior izquierda' , 7: 'centro inferior', 8: 'inderior derecha'}
 
-    quad_dict = {0: 'de', 1: 'fr', 2: 'iz'}
+    quad_dict = {0: 'iz', 1: 'fr', 2: 'de'}
 
     # class unique class id
     id_dict = {l:np.array([]) for l in pred_id}
@@ -660,8 +660,8 @@ class MobileCam(Midas, Detector):
         
     vr_n_l = len(vr_n) > 0
     if vr_n_l:
-      text.append('\nobjetos')
-      iz, fr, de = [', a su izquierda: '], [', al frente: '], [', a su derecha: ']
+      text.append('\nObjetos')
+      iz, fr, de = [' su izquierda: '], ['l frente: '], [' su derecha: ']
       for p in vr_n:
         if p[1] == 'iz':                             
           iz.append(p[0] + ' ')
@@ -685,7 +685,7 @@ class MobileCam(Midas, Detector):
       text =['  Sin objetos relevantes  ']
 
     # Text to speech automatic play
-    text = ' '.join(text)
+    text = ', a'.join(text)
     #print(text)
     tts = gTTS(text=text, lang='es') 
     tts.save('1.wav') 
