@@ -404,9 +404,12 @@ class Midas:
       #===============================Algorithm for proximity===============================
       proximity_out = img_out.copy()
       unique_out = np.unique(proximity_out)
-      proximity_out = (proximity_out+min(unique_out))*(255/(max(unique_out)-min(unique_out)))
+      # array with the new values
+      proximity_out = (proximity_out-min(unique_out))*(255/(max(unique_out)-min(unique_out)))
+        
+      print('\nnormalized to range(0,255):', min(np.unique(proximity_out)), max(np.unique(proximity_out)))
+
       
-      print('\nnormalized to range(0,255)')
       fig, ax = plt.subplots()
       ax.imshow(proximity_out)
       w = len(proximity_out[0]) / 3
@@ -415,17 +418,18 @@ class Midas:
       plt.show()
       #cv2_imshow(proximity_out)
       
-      if self.thresh_m < np.percentile(proximity_out, 75):
+
+      if self.thresh_m > np.percentile(proximity_out, 75):
         print('pixels distribution reduced')
-        new_px_dis = proximity_out[proximity_out < self.thresh_m] # cut the pixels distribution
+        new_px_dis = proximity_out[proximity_out > self.thresh_m] # cut the pixels distribution
         p1 = np.percentile(new_px_dis, 25)  # First quartile (Q1)
-        p2 = np.percentile(new_px_dis, 75)  # Second quartile (Q2 or median)
-        p3 = np.percentile(new_px_dis, 95)  # Third quartile (Q3)
+        p2 = np.percentile(new_px_dis, 60)  # Second quartile (Q2 or median)
+        p3 = np.percentile(new_px_dis, 90)  # Third quartile (Q3)
       
       else:
         print('pixels distribution mantained')
         p1 = np.percentile(proximity_out, 25)  # First quartile (Q1)
-        p2 = np.percentile(proximity_out, 70)  # Second quartile (Q2 or median)
+        p2 = np.percentile(proximity_out, 80)  # Second quartile (Q2 or median)
         p3 = np.percentile(proximity_out, 90)  # Third quartile (Q3)
 
       print('Percentiles: ', p1, p2, p3)
@@ -438,8 +442,8 @@ class Midas:
       proximity_out[proximity_out == p2] = 150 #near
       proximity_out[proximity_out == p3] = 255 # very near
       #just the display is working for rotation, but is programed for 180° rot
-      cv2_imshow(np.rot90(proximity_out, 2))
-      #cv2_imshow(proximity_out)  
+      #cv2_imshow(np.rot90(proximity_out, 2))
+      cv2_imshow(proximity_out)  
       #proximity_out[proximity_out <= q1] = q1 #far
       #proximity_out[(proximity_out > q1) & (proximity_out <= q2)] = q2 #near
       #proximity_out[proximity_out > q2] = q3 # very near
@@ -592,7 +596,7 @@ class MobileCam(Midas, Detector):
     segment_rvn[depth_array != depth_thresh[-1]] = 0 # Relevant and very near
     segment_vrn[depth_array != depth_thresh[-2]] = 0 # Very Relevant and near
     segment_rn[depth_array != depth_thresh[-2]] = 0 # Relevant and near
-
+    
     #test visualization
     print('unique depthmap:', np.unique(depth_thresh), '\nnear and very relevant')
     seg_out = segment_vrn.copy()
@@ -612,20 +616,21 @@ class MobileCam(Midas, Detector):
     w = len(segment_arr[0]) // 3
     q_area = h * w
 
-    """# devided into grid of 3 x 3
-    quad = [segment_arr[:h, :w], segment_arr[:h, w:2*w], segment_arr[:h, 2*w:],
-        segment_arr[h:2*h, :w], segment_arr[h:2*h, w:2*w], segment_arr[h:2*h, 2*w:],
-        segment_arr[2*h:, :w], segment_arr[2*h:, w:2*w], segment_arr[2*h:, 2*w:]
-        ] # quadrants"""
+    # devided into grid of 3 x 3
+    #quad = [segment_arr[:h, :w], segment_arr[:h, w:2*w], segment_arr[:h, 2*w:],
+     #   segment_arr[h:2*h, :w], segment_arr[h:2*h, w:2*w], segment_arr[h:2*h, 2*w:],
+      #  segment_arr[2*h:, :w], segment_arr[2*h:, w:2*w], segment_arr[2*h:, 2*w:]
+       # ] # quadrants
     
     # devided into grid of 3 x 1
     quad = [segment_arr[:, :w], segment_arr[:, w:2*w], segment_arr[:, 2*w:]] # quadrants""
-
+    
     # get the prediction for each label
     #quad_dict = {0: 'superior izquierda', 1: 'centro superior', 2: 'superior derecha',
     #              3: 'medio izquierda' , 4: 'medio centro' , 5:'medio derecha' ,
     #              6:'inferior izquierda' , 7: 'centro inferior', 8: 'inderior derecha'}
-
+    
+    
     quad_dict = {0: 'iz', 1: 'fr', 2: 'de'}
 
     # class unique class id
@@ -660,8 +665,8 @@ class MobileCam(Midas, Detector):
         
     vr_n_l = len(vr_n) > 0
     if vr_n_l:
-      text.append('\nObjetos')
-      iz, fr, de = [' su izquierda: '], ['l frente: '], [' su derecha: ']
+      text.append(' ')
+      iz, fr, de = [' su izquierda '], ['l frente '], [' su derecha ']
       for p in vr_n:
         if p[1] == 'iz':                             
           iz.append(p[0] + ' ')
