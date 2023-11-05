@@ -418,7 +418,7 @@ class Midas:
       plt.show()
       #cv2_imshow(proximity_out)
       
-
+      p75 = np.percentile(proximity_out, 75)
       if self.thresh_m > np.percentile(proximity_out, 75):
         print('pixels distribution reduced')
         new_px_dis = proximity_out[proximity_out > self.thresh_m] # cut the pixels distribution
@@ -429,7 +429,7 @@ class Midas:
       else:
         print('pixels distribution mantained')
         p1 = np.percentile(proximity_out, 25)  # First quartile (Q1)
-        p2 = np.percentile(proximity_out, 80)  # Second quartile (Q2 or median)
+        p2 = np.percentile(proximity_out, 75)  # Second quartile (Q2 or median)
         p3 = np.percentile(proximity_out, 90)  # Third quartile (Q3)
 
       print('Percentiles: ', p1, p2, p3)
@@ -453,7 +453,7 @@ class Midas:
       #cv2.applyColorMap(proximity_out, cv2.COLORMAP_PLASMA)
       #cv2_imshow(proximity_out)
       
-      return proximity_out
+      return proximity_out, p75
 
       """
             fps = 1 / (time.time() - start_time)
@@ -589,8 +589,9 @@ class MobileCam(Midas, Detector):
     segment_nn[hierarchy_arr != 3] = 0 # not relevant
 
     # ============================ hierarchy for depth ====================================
-    depth_array = self.onImage_m(path)
+    depth_array, p75 = self.onImage_m(path)
     #depth_array = depth_array.T
+    depth_array = np.rot90(depth_array, 2)
     depth_thresh = np.unique(depth_array)
     segment_vrvn[depth_array != depth_thresh[-1]] = 0 # Very Relevant and very near
     segment_rvn[depth_array != depth_thresh[-1]] = 0 # Relevant and very near
@@ -695,7 +696,7 @@ class MobileCam(Midas, Detector):
     tts = gTTS(text=text, lang='es') 
     tts.save('1.wav') 
     sound_file = '1.wav'
-    return Audio(sound_file, autoplay=True)
+    return Audio(sound_file, autoplay=True), text, p75
 
 
     """
@@ -806,7 +807,7 @@ class MobileCam(Midas, Detector):
 
         # ============================ hierarchy for depth ====================================
         depth_array = self.onVideo_m(frame)
-        depth_array = depth_array.T
+        depth_array = np.rot90(depth_array.T, 2)
         depth_thresh = np.unique(depth_array)
 
         segment_vrvn[depth_array != depth_thresh[-1]] = 0 # Very Relevant and very near
