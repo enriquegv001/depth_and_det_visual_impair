@@ -165,47 +165,15 @@ class Detector:
     def onVideo_d(self, frame):
       predictions, segmentInfo = self.predictor(frame)["panoptic_seg"]
       metadata = MetadataCatalog.get(self.cfg.DATASETS.TRAIN[0])
-      #x = [print(x, len(x)) for x in predictions.cpu().numpy()[:10, :10].T] #identify its classes
-      #x = [print(x, len(x)) for x in predictions.cpu().numpy()[:, :10]]
-
+      
       segmentInfo_og = segmentInfo.copy() # save segmentInfo original
 
       #============================== Algorithm: hierarchy based on things =================================
-      """
       # set the class label and class heirarchy inside segmentInfo
-      stuff_hierarchy = {'things': 1, 'banner': 1, 'blanket': 2, 'bridge': 1, 'cardboard': 1, 'counter': 1, 'curtain': 2, 'door-stuff': 1, 'floor-wood': 2, 'flower': 3, 'fruit': 2, 'gravel': 3, 'house': 3, 'light': 3, 'mirror-stuff': 1, 'net': 2, 'pillow': 2, 'platform': 1, 'playingfield': 3, 'railroad': 1, 'river': 1, 'road': 1, 'roof': 3, 'sand': 3, 'sea': 3, 'shelf': 1, 'snow': 1, 'stairs': 1, 'tent': 1, 'towel': 2, 'wall-brick': 1, 'wall-stone': 1, 'wall-tile': 1, 'wall-wood': 1, 'water': 1, 'window-blind': 1, 'window': 1, 'tree': 3, 'fence': 1, 'ceiling': 3, 'sky': 3, 'cabinet': 1, 'table': 1, 'floor': 3, 'pavement': 3, 'mountain': 3, 'grass': 3, 'dirt': 3, 'paper': 2, 'food': 2, 'building': 3, 'rock': 1, 'wall': 1, 'rug': 2}
-      stuff_hierarchy = {'things': 1, 'banner': 1, 'blanket': 2, 'bridge': 1, 'cardboard': 1, 'counter': 1, 'curtain': 2, 'door-stuff': 1, 'floor-wood': 2, 'flower': 3, 'fruit': 2, 'gravel': 3, 'house': 3, 'light': 3, 'mirror-stuff': 1, 'net': 2, 'pillow': 2, 'platform': 1, 'playingfield': 3, 'railroad': 1, 'river': 1, 'road': 1, 'roof': 3, 'sand': 3, 'sea': 3, 'shelf': 1, 'snow': 1, 'stairs': 1, 'tent': 1, 'towel': 2, 'wall-brick': 1, 'wall-stone': 1, 'wall-tile': 1, 'wall-wood': 1, 'water': 1, 'window-blind': 1, 'window': 1, 'tree': 3, 'fence': 1, 'ceiling': 3, 'sky': 3, 'cabinet': 1, 'table': 1, 'floor': 3, 'pavement': 3, 'mountain': 3, 'grass': 3, 'dirt': 3, 'paper': 2, 'food': 2, 'building': 3, 'rock': 1, 'wall': 1, 'rug': 2}
-
-      stuff_cat_id = {i: c for i, c in enumerate(metadata.stuff_classes)} # dict with index and classes
-      #things_cat_id = {i: c for i, c in enumerate(metadata.thing_classes)}
-
-      for segment in segmentInfo:
-        if not segment['isthing']:
-            label = stuff_cat_id[segment['category_id']]
-            segment['class_label'] = label
-            segment['class_hierarchy'] = stuff_hierarchy[label]
-
-      # dict that gets the id predictios and the class_hierarchy
-      pred_hierarchy_dict = {x['id']:x['class_hierarchy'] for x in segmentInfo if x['isthing'] == False}
-
-      # get the array that works as a window filter for hierarchy of the classes
-      pred_arr = predictions.cpu()
-      pred_set_id = set(pred_hierarchy_dict.keys())
-      pred_hierarchy = np.vectorize(lambda x: pred_hierarchy_dict[x] if x in pred_set_id else 0)(pred_arr.numpy())
-
-      # restructure info for stuff
-      Info_with_label = {'id': [], 'isthing': [], 'category_id': [], 'area': [], 'class_label': [], 'class_hierarchy': []}
-      for k in Info_with_label.keys():
-        for x in segmentInfo:
-          if x['isthing'] == False:
-            Info_with_label[k].append(x[k])
-      """
-
-      # set the class label and class heirarchy inside segmentInfo
-      stuff_hierarchy = {'things': 1, 'banner': 1, 'blanket': 2, 'bridge': 1, 'cardboard': 1, 'counter': 1, 'curtain': 2, 'door-stuff': 1, 'floor-wood': 2, 'flower': 3, 'fruit': 2, 'gravel': 3, 'house': 3, 'light': 3, 'mirror-stuff': 1, 'net': 2, 'pillow': 2, 'platform': 1, 'playingfield': 3, 'railroad': 1, 'river': 1, 'road': 1, 'roof': 3, 'sand': 3, 'sea': 3, 'shelf': 1, 'snow': 1, 'stairs': 1, 'tent': 1, 'towel': 2, 'wall-brick': 1, 'wall-stone': 1, 'wall-tile': 3, 'wall-wood': 1, 'water': 1, 'window-blind': 1, 'window': 1, 'tree': 3, 'fence': 1, 'ceiling': 3, 'sky': 3, 'cabinet': 1, 'table': 1, 'floor': 3, 'pavement': 3, 'mountain': 3, 'grass': 3, 'dirt': 3, 'paper': 2, 'food': 2, 'building': 1, 'rock': 1, 'wall': 1, 'rug': 2}
+      stuff_hierarchy = {'things': 1, 'banner': 1, 'blanket': 3, 'bridge': 1, 'cardboard': 1, 'counter': 1, 'curtain': 2, 'door-stuff': 1, 'floor-wood': 2, 'flower': 3, 'fruit': 2, 'gravel': 3, 'house': 3, 'light': 3, 'mirror-stuff': 1, 'net': 2, 'pillow': 3, 'platform': 1, 'playingfield': 3, 'railroad': 1, 'river': 1, 'road': 1, 'roof': 3, 'sand': 3, 'sea': 3, 'shelf': 1, 'snow': 1, 'stairs': 1, 'tent': 1, 'towel': 2, 'wall-brick': 1, 'wall-stone': 1, 'wall-tile': 1, 'wall-wood': 1, 'water': 1, 'window-blind': 3, 'window': 1, 'tree': 3, 'fence': 1, 'ceiling': 3, 'sky': 3, 'cabinet': 1, 'table': 1, 'floor': 3, 'pavement': 3, 'mountain': 3, 'grass': 3, 'dirt': 3, 'paper': 2, 'food': 2, 'building': 3, 'rock': 1, 'wall': 1, 'rug': 2}
       stuff_cat_id = {i: c for i, c in enumerate(metadata.stuff_classes)} # dict with index and classes
 
-      thing_hierarchy = {'person': 1, 'bicycle': 1, 'car': 1, 'motorcycle':1, 'airplane':3, 'bus':1, 'train':1, 'truck':1, 'boat':3, 'traffic light':2, 'fire hydrant':2, 'stop sign':2, 'parking meter':2, 'bench':1, 'bird':3, 'cat':1, 'dog':1, 'horse':1, 'sheep':1, 'cow':1, 'elephant':1, 'bear':1, 'zebra':1, 'giraffe':1, 'backpack':2, 'umbrella':2, 'handbag':2, 'tie':3, 'suitcase':2, 'frisbee':1, 'skis':2, 'snowboard':2, 'sports ball':2, 'kite':3, 'baseball bat':2, 'baseball glove':2, 'skateboard':1, 'surfboard':3, 'tennis racket':2, 'bottle':2, 'wine glass':2, 'cup':2, 'fork':2, 'knife':2, 'spoon':3, 'bowl':3, 'banana':3, 'apple':3, 'sandwich':3, 'orange':3, 'broccoli':3, 'carrot':3, 'hot dog':3, 'pizza':3, 'donut':3, 'cake':3, 'chair':2, 'couch':2, 'potted plant':3, 'bed':2, 'dining table':2, 'toilet':2, 'tv':3, 'laptop':3, 'mouse':3, 'remote':3, 'keyboard':3, 'cell phone':3, 'microwave':3, 'oven':2, 'toaster':2, 'sink':2, 'refrigerator':2, 'book':3, 'clock':3, 'vase':2, 'scissors':2, 'teddy bear':3, 'hair drier':3, 'toothbrush':3}
+      thing_hierarchy = {'person': 1, 'bicycle': 1, 'car': 1, 'motorcycle':1, 'airplane':3, 'bus':1, 'train':1, 'truck':1, 'boat':3, 'traffic light':1, 'fire hydrant':1, 'stop sign':1, 'parking meter':1, 'bench':1, 'bird':3, 'cat':1, 'dog':1, 'horse':1, 'sheep':1, 'cow':1, 'elephant':1, 'bear':1, 'zebra':1, 'giraffe':1, 'backpack':1, 'umbrella':1, 'handbag':1, 'tie':3, 'suitcase':1, 'frisbee':1, 'skis':1, 'snowboard':1, 'sports ball':1, 'kite':3, 'baseball bat':1, 'baseball glove':1, 'skateboard':1, 'surfboard':3, 'tennis racket':1, 'bottle':2, 'wine glass':1, 'cup':1, 'fork':1, 'knife':1, 'spoon':2, 'bowl':3, 'banana':3, 'apple':3, 'sandwich':3, 'orange':3, 'broccoli':3, 'carrot':3, 'hot dog':3, 'pizza':3, 'donut':3, 'cake':3, 'chair':1, 'couch':1, 'potted plant':1, 'bed':1, 'dining table':1, 'toilet':1, 'tv':3, 'laptop':3, 'mouse':3, 'remote':3, 'keyboard':3, 'cell phone':3, 'microwave':3, 'oven':2, 'toaster':2, 'sink':2, 'refrigerator':1, 'book':3, 'clock':3, 'vase':2, 'scissors':2, 'teddy bear':3, 'hair drier':2, 'toothbrush':2}
       thing_cat_id = {i: c for i,c in enumerate(metadata.thing_classes)}
 
       for segment in segmentInfo:
@@ -246,8 +214,8 @@ class Detector:
           Info_with_label[k].append(x[k])
 
       # translate prediction to spanish
-      trans_dict_stuff = {'things': 'objetos', 'banner': 'letrero', 'blanket': 'sábana', 'bridge': 'puente', 'cardboard': 'cartón', 'counter': 'mostrador', 'curtain': 'cortina', 'door-stuff': 'puerta', 'floor-wood': 'piso de madera', 'flower': 'flor', 'fruit': 'fruta', 'gravel': 'grava', 'house': 'casa', 'light': 'luz', 'mirror-stuff': 'espejo', 'net': 'red', 'pillow': 'almohada', 'platform': 'plataforma', 'playingfield': 'cancha de juego', 'railroad': 'ferrocarril', 'river': 'río', 'road': 'calle', 'roof': 'tejado', 'sand': 'arena', 'sea': 'oceano', 'shelf': 'repisas', 'snow': 'nieve', 'stairs': 'escalera', 'tent': 'tienda de campaña', 'towel': 'toalla', 'wall-brick': 'pared de ladrillo', 'wall-stone': 'pared de piedra', 'wall-tile': 'pared de teja', 'wall-wood': 'pared de madera', 'water': 'agua', 'window-blind': 'persiana', 'window': 'ventana', 'tree': 'árbol', 'fence': 'valla', 'ceiling': 'techo', 'sky': 'cielo', 'cabinet': 'gabinete', 'table': 'mesa', 'floor': 'piso', 'pavement': 'pavimento', 'mountain': 'montaña', 'grass': 'pasto', 'dirt': 'tierra', 'paper': 'papel', 'food': 'comida', 'building': 'edificio', 'rock': 'roca', 'wall': 'pared', 'rug': 'alfombra'}
-      trans_dict_things = {'person': 'persona', 'bicycle': 'bicicleta', 'car': 'coche', 'motorcycle': 'motocicleta', 'airplane': 'avión', 'bus': 'autobus', 'train': 'tren', 'truck': 'camioneta', 'boat': 'bote', 'traffic light': 'semáforo', 'fire hydrant': 'hidratante', 'stop sign': 'señalización de alto', 'parking meter': 'parquímetro', 'bench': 'banca', 'bird': 'pájaro', 'cat': 'gato', 'dog': 'perro', 'horse': 'caballo', 'sheep': 'oveja', 'cow': 'vaca', 'elephant': 'elefante', 'bear': 'oso', 'zebra': 'cebra', 'giraffe': 'jirafa', 'backpack': 'mochila', 'umbrella': 'sombrilla', 'handbag': 'maleta de mano', 'tie': 'corbata', 'suitcase': 'portafolio', 'frisbee': 'frisbee', 'skis': 'skis', 'snowboard': 'snowboard', 'sports ball': 'balón', 'kite': 'cometa', 'baseball bat': 'bate de baseball', 'baseball glove': 'guante de baseball', 'skateboard': 'patineta', 'surfboard': 'tabla de surf', 'tennis racket': 'raqueta', 'bottle': 'botella', 'wine glass': 'copa de vino', 'cup': 'tasa', 'fork': 'tenedor', 'knife': 'cuchillo', 'spoon': 'cuchara', 'bowl': 'tasón', 'banana': 'plátano', 'apple': 'manzana', 'sandwich': 'sandwich', 'orange': 'naraja', 'broccoli': 'broccoli', 'carrot': 'zanahoria', 'hot dog': 'hot dog', 'pizza': 'pizza', 'donut': 'dona', 'cake': 'pastel', 'chair': 'silla', 'couch': 'sillón', 'potted plant': 'maceta', 'bed': 'cama', 'dining table': 'mesa de comedor', 'toilet': 'escusado', 'tv': 'televisión', 'laptop': 'laptop', 'mouse': 'mouse', 'remote': 'control remoto', 'keyboard': 'teclado', 'cell phone': 'celular', 'microwave': 'microondas', 'oven': 'horno', 'toaster': 'tostador', 'sink': 'lavabo', 'refrigerator': 'refrigerador', 'book': 'libro', 'clock': 'reloj', 'vase': 'jarrón', 'scissors': 'tijeras', 'teddy bear': 'oso de peluche', 'hair drier': 'secadora de pelo', 'toothbrush': 'pasta de dientes'}
+      trans_dict_stuff = {'things': 'objetos', 'banner': 'letrero', 'blanket': 'sábana', 'bridge': 'puente', 'cardboard': 'cartón', 'counter': 'mostrador', 'curtain': 'cortina', 'door-stuff': 'puerta', 'floor-wood': 'piso', 'flower': 'flor', 'fruit': 'fruta', 'gravel': 'grava', 'house': 'casa', 'light': 'luz', 'mirror-stuff': 'espejo', 'net': 'red', 'pillow': 'almohada', 'platform': 'plataforma', 'playingfield': 'cancha de juego', 'railroad': 'ferrocarril', 'river': 'río', 'road': 'calle', 'roof': 'tejado', 'sand': 'arena', 'sea': 'oceano', 'shelf': 'repisas', 'snow': 'nieve', 'stairs': 'escalera', 'tent': 'tienda de campaña', 'towel': 'toalla', 'wall-brick': 'pared', 'wall-stone': 'pared', 'wall-tile': 'pared de teja', 'wall-wood': 'pared', 'water': 'agua', 'window-blind': 'persiana', 'window': 'ventana', 'tree': 'árbol', 'fence': 'valla', 'ceiling': 'techo', 'sky': 'cielo', 'cabinet': 'gabinete', 'table': 'mesa', 'floor': 'piso', 'pavement': 'pavimento', 'mountain': 'montaña', 'grass': 'pasto', 'dirt': 'tierra', 'paper': 'papel', 'food': 'comida', 'building': 'edificio', 'rock': 'roca', 'wall': 'pared', 'rug': 'alfombra'}
+      trans_dict_things = {'person': 'persona', 'bicycle': 'bicicleta', 'car': 'coche', 'motorcycle': 'motocicleta', 'airplane': 'avión', 'bus': 'autobus', 'train': 'tren', 'truck': 'camioneta', 'boat': 'bote', 'traffic light': 'semáforo', 'fire hydrant': 'hidratante', 'stop sign': 'señalización de alto', 'parking meter': 'parquímetro', 'bench': 'banca', 'bird': 'pájaro', 'cat': 'gato', 'dog': 'perro', 'horse': 'caballo', 'sheep': 'oveja', 'cow': 'vaca', 'elephant': 'elefante', 'bear': 'oso', 'zebra': 'cebra', 'giraffe': 'jirafa', 'backpack': 'mochila', 'umbrella': 'sombrilla', 'handbag': 'maleta de mano', 'tie': 'corbata', 'suitcase': 'portafolio', 'frisbee': 'frisbee', 'skis': 'skis', 'snowboard': 'snowboard', 'sports ball': 'balón', 'kite': 'cometa', 'baseball bat': 'bate de baseball', 'baseball glove': 'guante de baseball', 'skateboard': 'patineta', 'surfboard': 'tabla de surf', 'tennis racket': 'raqueta', 'bottle': 'botella', 'wine glass': 'copa de vino', 'cup': 'tasa', 'fork': 'tenedor', 'knife': 'cuchillo', 'spoon': 'cuchara', 'bowl': 'tasón', 'banana': 'plátano', 'apple': 'manzana', 'sandwich': 'sandwich', 'orange': 'naraja', 'broccoli': 'broccoli', 'carrot': 'zanahoria', 'hot dog': 'hot dog', 'pizza': 'pizza', 'donut': 'dona', 'cake': 'pastel', 'chair': 'silla', 'couch': 'sillón', 'potted plant': 'maceta', 'bed': 'cama', 'dining table': 'mesa', 'toilet': 'escusado', 'tv': 'televisión', 'laptop': 'laptop', 'mouse': 'mouse', 'remote': 'control remoto', 'keyboard': 'teclado', 'cell phone': 'celular', 'microwave': 'microondas', 'oven': 'horno', 'toaster': 'tostador', 'sink': 'lavabo', 'refrigerator': 'refrigerador', 'book': 'libro', 'clock': 'reloj', 'vase': 'jarrón', 'scissors': 'tijeras', 'teddy bear': 'oso de peluche', 'hair drier': 'secadora de pelo', 'toothbrush': 'pasta de dientes'}
       trans_set_stuff = set(trans_dict_stuff.keys())
       trans_set_thing = set(trans_dict_things.keys())
       def translate_label(x):
@@ -486,7 +454,6 @@ class Midas:
           ).squeeze() # remove extra dims
 
       img_out = prediction.cpu().numpy()
-      img_transpose = img_out.T # values are inverted
       #print(img_transpose[:30, -30:])
       #plt.imshow(proximity_out)
       # plt.show()
@@ -494,29 +461,35 @@ class Midas:
       #print('prections pos-processing done')
 
       #===============================Algorithm for proximity===============================
-      #print(img_outTranspose)
       proximity_out = img_out.copy()
-      uniqeu_out = np.unique(proximity_out)
-      img_dis = (proximity_out+min(uniqeu_out))*(255/(max(uniqeu_out)-min(uniqeu_out)))
-
-      if self.thresh_m < np.percentile(img_out, 75):
-        img_out = img_out[img_out < self.thresh_m]
-        p1 = np.percentile(img_out, 25)  # First quartile (Q1)
-        p2 = np.percentile(img_out, 60)  # Second quartile (Q2 or median)
-        p3 = np.percentile(img_out, 70)  # Third quartile (Q3)
+      unique_out = np.unique(proximity_out)
+      # array with the new values
+      proximity_out = (proximity_out-min(unique_out))*(255/(max(unique_out)-min(unique_out)))
+      
+      initial_out_img = proximity_out.copy()
+      #if self.thresh_m > np.percentile(proximity_out, 75):
+      if np.std(initial_out_img) > self.thresh_m:
+        print('pixels distribution reduced', 'std', np.std(initial_out_img))
+        new_px_dis = proximity_out[proximity_out > np.percentile(proximity_out, 80)] # cut the pixels distribution
+        p1 = np.percentile(new_px_dis, 25)  # First quartile (Q1)
+        p2 = np.percentile(new_px_dis, 60)  # Second quartile (Q2 or median)
+        p3 = np.percentile(new_px_dis, 80)  # Third quartile (Q3)
       
       else:
-        p1 = np.percentile(img_out, 25)  # First quartile (Q1)
-        p2 = np.percentile(img_out, 60)  # Second quartile (Q2 or median)
-        p3 = np.percentile(img_out, 90)  # Third quartile (Q3)
+        print('pixels distribution mantained', 'std', np.std(initial_out_img))
+        p1 = np.percentile(proximity_out, 25)  # First quartile (Q1)
+        p2 = np.percentile(proximity_out, 75)  # Second quartile (Q2 or median)
+        p3 = np.percentile(proximity_out, 90)  # Third quartile (Q3)
 
-      proximity_out[proximity_out <= p1] = p1 #far
+      print('Percentiles: ', p1, p2, p3)
+      proximity_out[proximity_out <= p2] = p1 #far
       proximity_out[(proximity_out > p2) & (proximity_out <= p3)] = p2 #near
       proximity_out[proximity_out > p3] = p3 # very near
 
-      #proximity_out[proximity_out <= q1] = q1 #far
-      #proximity_out[(proximity_out > q1) & (proximity_out <= q2)] = q2 #near
-      #proximity_out[proximity_out > q2] = q3 # very near
+      # rescaling for visualization
+      proximity_out[proximity_out == p1] = 0 #far
+      proximity_out[proximity_out == p2] = 150 #near
+      proximity_out[proximity_out == p3] = 255 # very near
 
       #==================================== display image=======================================
       #plt.imshow(proximity_out)
@@ -699,61 +672,6 @@ class MobileCam(Midas, Detector):
     sound_file = '1.wav'
     return Audio(sound_file, autoplay=True), text, initial_out_img
 
-
-    """
-    #segment_arr = segment_arr.numpy()
-    segment_arr_1, segment_arr_2, segment_arr_3 = segment_arr.copy(), segment_arr.copy(), segment_arr.copy()
-    segment_arr_1[hierarchy_arr != 1] = 0 # very relevant
-    segment_arr_2[hierarchy_arr != 2] = 0 # relevant
-    segment_arr_3[hierarchy_arr != 3] = 0 # not relevant
-
-    # hierarchy for depth
-    depth_array = self.onImage_m(path)
-    depth_array = np.flip(depth_array)
-    depth_thresh = np.unique(depth_array)
-    segment_arr_1[depth_array != depth_thresh[-1]] = 0 # Very Relevant and very near
-    segment_arr_2[depth_array != depth_thresh[-2]] = 0 # Relevant and near
-
-    # ============ Predict the poistion for each object / stuff detected ===================
-    h_mod = len(segment_arr) % 3
-    w_mod = len(segment_arr[0]) % 3
-    if h_mod != 0:
-        segment_arr = segment_arr[:-h_mod, :]
-    if w_mod != 0:
-        segment_arr = segment_arr[:, :-w_mod]
-
-    # get the amount the amount of pixels they correspond for each quadrant
-    h = len(segment_arr) // 3
-    w = len(segment_arr[0]) // 3
-    q_area = h * w
-
-    # devided into grid of 3 x 3
-    quad = [segment_arr[:h, :w], segment_arr[:h, w:2*w], segment_arr[:h, 2*w:],
-        segment_arr[h:2*h, :w], segment_arr[h:2*h, w:2*w], segment_arr[h:2*h, 2*w:],
-        segment_arr[2*h:, :w], segment_arr[2*h:, w:2*w], segment_arr[2*h:, 2*w:]
-        ] # quadrants
-
-    # get the prediction for each label
-    quad_dict = {0: 'left top', 1: 'center top', 2: 'right top',
-                  3: 'middle left' , 4: 'middle center' , 5:'middle right' ,
-                  6:'down left' , 7: 'down center', 8: 'down right'}
-
-    # class unique class id
-    id_dict = {l:np.array([]) for l in pred_id}
-
-    for k in id_dict:
-        for q in quad:
-            id_dict[k] = np.append(len(q[q == k]), id_dict[k])
-        id_dict[k] = id_dict[k]/q_area
-        id_dict[k] = quad_dict[np.where(id_dict[k] == max(id_dict[k]))[0][0]] #[::-1] index for quadrant
-    print(id_dict)
-
-    # ========================================= display ==================================
-    text_out = [(pred_class[pred_id.index(i)], id_dict[i]) for i in np.unique(segment_arr_1) if i != 0]
-    print('\nVery Relevant, Very Near:', text_out)
-    text_out = [(pred_class[pred_id.index(i)], id_dict[i]) for i in np.unique(segment_arr_2) if i != 0]
-    print('Relevant, Near:', text_out, '\n')
-    """
     # ============still missing:
     # Very Relevant and near (1,100)
     # Relevant and near (2, 100)
@@ -815,97 +733,85 @@ class MobileCam(Midas, Detector):
         segment_rvn[depth_array != depth_thresh[-1]] = 0 # Relevant and very near
         segment_vrn[depth_array != depth_thresh[-2]] = 0 # Very Relevant and near
         segment_rn[depth_array != depth_thresh[-2]] = 0 # Relevant and near
-
+        
         # ============ Predict the poistion for each object / stuff detected ===================
         h_mod = len(segment_arr) % 3
-        w_mod = len(segment_arr[0]) % 3
-        if h_mod != 0:
-            segment_arr = segment_arr[:-h_mod, :]
-        if w_mod != 0:
-            segment_arr = segment_arr[:, :-w_mod]
+    w_mod = len(segment_arr[0]) % 3
+    if h_mod != 0:
+        segment_arr = segment_arr[:-h_mod, :]
+    if w_mod != 0:
+        segment_arr = segment_arr[:, :-w_mod]
 
-        # get the amount the amount of pixels they correspond for each quadrant
-        h = len(segment_arr) // 3
-        w = len(segment_arr[0]) #// 3
-        q_area = h * w
+    # get the amount the amount of pixels they correspond for each quadrant
+    h = len(segment_arr) # // 3
+    w = len(segment_arr[0]) // 3
+    
+    # devided into grid of 3 x 1
+    quad = [segment_arr[:, :w], segment_arr[:, w:2*w], segment_arr[:, 2*w:]] 
+    
+    quad_dict = {0: 'iz', 1: 'fr', 2: 'de'}
 
-        """# devided into grid of 3 x 3
-        quad = [segment_arr[:h, :w], segment_arr[:h, w:2*w], segment_arr[:h, 2*w:],
-            segment_arr[h:2*h, :w], segment_arr[h:2*h, w:2*w], segment_arr[h:2*h, 2*w:],
-            segment_arr[2*h:, :w], segment_arr[2*h:, w:2*w], segment_arr[2*h:, 2*w:]
-            ] # quadrants"""
-        # devided into grid of 3 x 1
-        quad = [segment_arr[:h, :], segment_arr[h:2*h, :], segment_arr[2*h:, :]] # quadrants""
+    # class unique class id
+    id_dict = {l:np.array([]) for l in pred_id}
 
-        # get the prediction for each label
-        #quad_dict = {0: 'superior izquierda', 1: 'centro superior', 2: 'superior derecha',
-        #              3: 'medio izquierda' , 4: 'medio centro' , 5:'medio derecha' ,
-        #              6:'inferior izquierda' , 7: 'centro inferior', 8: 'inderior derecha'}
+    for k in id_dict:
+        for q in quad:
+            id_dict[k] = np.append(len(q[q == k]), id_dict[k])
+        id_dict[k] = quad_dict[np.where(id_dict[k] == max(id_dict[k]))[0][0]] #[::-1] index for quadrant
 
-        quad_dict = {0: 'de', 1: 'fr', 2: 'iz'}
+    # ========================================= display ==================================
+    vr_vn = [(pred_class[pred_id.index(i)], id_dict[i]) for i in np.unique(segment_vrvn) if i != 0]
+    #print('\nVery Relevant, Very Near:', vr_vn)
+    r_vn = [(pred_class[pred_id.index(i)], id_dict[i]) for i in np.unique(segment_rvn) if i != 0]
+    vr_n = [(pred_class[pred_id.index(i)], id_dict[i]) for i in np.unique(segment_vrn) if i != 0]
+    r_n = [(pred_class[pred_id.index(i)], id_dict[i]) for i in np.unique(segment_rn) if i != 0]
+    print('vr_vn:', vr_vn, '\nr_vn:', r_vn, '\nvr_n:', vr_n, '\nr_n:', r_n)
 
-        # class unique class id
-        id_dict = {l:np.array([]) for l in pred_id}
+    text = []
+    vr_vn_len = len(vr_vn) > 0
+    #if vr_vn_len:
+    #  text.append('\nprecaución acercándose a')
+    #  #[print(p[0] + ' '+ p[1] + ' ') for p in vr_vn]
+    #  [text.append(p[0] + ' '+ p[1] + ' ') for p in vr_vn]
 
-        for k in id_dict:
-            for q in quad:
-                id_dict[k] = np.append(len(q[q == k]), id_dict[k])
-            #id_dict[k] = id_dict[k]/q_area
-            id_dict[k] = quad_dict[np.where(id_dict[k] == max(id_dict[k]))[0][0]] #[::-1] index for quadrant
-        #print(id_dict)
+    #if len(r_vn) > 0:
+      #if not vr_vn_len:
+      #text.append('\nprecaución acercándose a')
+      #[text.append(p[0] + ' '+ p[1] + ' ') for p in r_vn]
+        
+    vr_n_l = len(vr_n) > 0
+    if vr_n_l:
+      text.append(' ')
+      iz, fr, de = [' su izquierda '], ['l frente '], [' su derecha ']
+      for p in vr_n:
+        if p[1] == 'iz':                             
+          iz.append(p[0] + ' ')
+        elif p[1] == 'fr':                 
+          fr.append(p[0] + ' ')
+        elif p[1] == 'de':
+            de.append(p[0] + ' ')
+      if len(iz) > 1:
+        text.append(' '.join(iz))
+      if len(fr) > 1:
+        text.append(' '.join(fr))
+      if len(de) > 1:
+        text.append(' '.join(de))
+        
+    if len(r_n) > 0:
+      #if not vr_n_l:
+      #  text.append('\npróximamente')
+      #[text.append(p[0] + ' '+ p[1] + ' ') for p in r_n]
+        pass
+    if len(text)==0:
+      text =['  Sin objetos relevantes  ']
 
-        # ========================================= display ==================================
-        vr_vn = [(pred_class[pred_id.index(i)], id_dict[i]) for i in np.unique(segment_vrvn) if i != 0]
-        #print('\nVery Relevant, Very Near:', vr_vn)
-        r_vn = [(pred_class[pred_id.index(i)], id_dict[i]) for i in np.unique(segment_rvn) if i != 0]
-        vr_n = [(pred_class[pred_id.index(i)], id_dict[i]) for i in np.unique(segment_vrn) if i != 0]
-        r_n = [(pred_class[pred_id.index(i)], id_dict[i]) for i in np.unique(segment_rn) if i != 0]
+    # Text to speech automatic play
+    text = ', a'.join(text)
+    #print(text)
+    tts = gTTS(text=text, lang='es') 
+    tts.save('1.wav') 
+    sound_file = '1.wav'
+    return Audio(sound_file, autoplay=True)
+    #cv2.waitKey(3)
 
-
-        text = []
-        vr_vn_len = len(vr_vn) > 0
-        #if vr_vn_len:
-        #  text.append('\nprecaución acercándose a')
-        #  #[print(p[0] + ' '+ p[1] + ' ') for p in vr_vn]
-        #  [text.append(p[0] + ' '+ p[1] + ' ') for p in vr_vn]
-
-        #if len(r_vn) > 0:
-          #if not vr_vn_len:
-          #text.append('\nprecaución acercándose a')
-          #[text.append(p[0] + ' '+ p[1] + ' ') for p in r_vn]
-            
-        vr_n_l = len(vr_n) > 0
-        if vr_n_l:
-          text.append('\nobjetos')
-          iz, fr, de = [', a su izquierda: '], [', al frente: '], [', a su derecha: ']
-          for p in vr_n:
-            if p[1] == 'iz':                             
-              iz.append(p[0] + ' ')
-            elif p[1] == 'fr':                 
-              fr.append(p[0] + ' ')
-            elif p[1] == 'de':
-               de.append(p[0] + ' ')
-          if len(iz) > 1:
-            text.append(' '.join(iz))
-          if len(fr) > 1:
-            text.append(' '.join(fr))
-          if len(de) > 1:
-            text.append(' '.join(de))
-            
-        if len(r_n) > 0:
-          #if not vr_n_l:
-          #  text.append('\npróximamente')
-          #[text.append(p[0] + ' '+ p[1] + ' ') for p in r_n]
-            pass
-        if len(text)==0:
-          text =['  Sin objetos relevantes  ']
-
-        # Text to speech automatic play
-        text = ' '.join(text)
-        #print(text)
-        tts = gTTS(text=text, lang='es') 
-        tts.save('1.wav') 
-        sound_file = '1.wav'
-        return Audio(sound_file, autoplay=True)
-        #cv2.waitKey(3)
-
+    
