@@ -418,12 +418,13 @@ class Midas:
       plt.show()
       #cv2_imshow(proximity_out)
       
-      box_plot = (min(proximity_out), np.percentile(proximity_out, 25), np.percentile(proximity_out, 50), np.percentile(proximity_out, 75), min(proximity_out))
-      if self.thresh_m > np.percentile(proximity_out, 75):
+      initial_out_img = proximity_out.copy()
+      #if self.thresh_m > np.percentile(proximity_out, 75):
+      if self.thresh_m > np.std(proximity_out):
         print('pixels distribution reduced')
-        new_px_dis = proximity_out[proximity_out > self.thresh_m] # cut the pixels distribution
+        new_px_dis = proximity_out[proximity_out > np.percentile(proximity_out, 80)] # cut the pixels distribution
         p1 = np.percentile(new_px_dis, 25)  # First quartile (Q1)
-        p2 = np.percentile(new_px_dis, 60)  # Second quartile (Q2 or median)
+        p2 = np.percentile(new_px_dis, 75)  # Second quartile (Q2 or median)
         p3 = np.percentile(new_px_dis, 90)  # Third quartile (Q3)
       
       else:
@@ -453,7 +454,7 @@ class Midas:
       #cv2.applyColorMap(proximity_out, cv2.COLORMAP_PLASMA)
       #cv2_imshow(proximity_out)
       
-      return proximity_out, box_plot 
+      return proximity_out, initial_out_img 
 
       """
             fps = 1 / (time.time() - start_time)
@@ -589,7 +590,7 @@ class MobileCam(Midas, Detector):
     segment_nn[hierarchy_arr != 3] = 0 # not relevant
 
     # ============================ hierarchy for depth ====================================
-    depth_array, box_plot = self.onImage_m(path)
+    depth_array, initial_out_img = self.onImage_m(path)
     #depth_array = depth_array.T
     depth_array = np.rot90(depth_array, 2)
     depth_thresh = np.unique(depth_array)
@@ -696,7 +697,7 @@ class MobileCam(Midas, Detector):
     tts = gTTS(text=text, lang='es') 
     tts.save('1.wav') 
     sound_file = '1.wav'
-    return Audio(sound_file, autoplay=True), text, box_plot
+    return Audio(sound_file, autoplay=True), text, initial_out_img
 
 
     """
