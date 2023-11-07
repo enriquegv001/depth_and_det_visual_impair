@@ -570,7 +570,7 @@ class MobileCam(Midas, Detector):
     segment_rvn[depth_array != depth_thresh[-1]] = 0 # Relevant and very near
     segment_vrn[depth_array != depth_thresh[-2]] = 0 # Very Relevant and near
     segment_rn[depth_array != depth_thresh[-2]] = 0 # Relevant and near
-    segment_vrf[depth_array != depth_thresh[-3]] = 0
+    segment_vrf[depth_array != depth_thresh[-3]] = 0 # Very relevant far
     
     #test visualization
     print('unique depthmap:', np.unique(depth_thresh), '\nnear and very relevant')
@@ -720,12 +720,12 @@ class MobileCam(Midas, Detector):
 
       #print(pred_class)
       segment_arr = segment_arr.numpy()
-      segment_vrvn, segment_vrn, segment_rvn, segment_rn, segment_nn = segment_arr.copy(), segment_arr.copy(), segment_arr.copy(), segment_arr.copy(), segment_arr.copy()
+      segment_vrvn, segment_vrn, segment_rvn, segment_rn, segment_vrf = segment_arr.copy(), segment_arr.copy(), segment_arr.copy(), segment_arr.copy(), segment_arr.copy()
       segment_vrvn[hierarchy_arr != 1] = 0 # very relevant very near
       segment_rvn[hierarchy_arr != 2] = 0 # relevant very near
       segment_vrn[hierarchy_arr != 1] = 0 # very relevant near
       segment_rn[hierarchy_arr != 2] = 0 # relevant near
-      segment_nn[hierarchy_arr != 3] = 0 # not relevant
+      segment_vrf[hierarchy_arr != 1] = 0 # very relevant far
 
       # ============================ hierarchy for depth ====================================
       depth_array = self.onVideo_m(frame)
@@ -735,6 +735,7 @@ class MobileCam(Midas, Detector):
       segment_rvn[depth_array != depth_thresh[-1]] = 0 # Relevant and very near
       segment_vrn[depth_array != depth_thresh[-2]] = 0 # Very Relevant and near
       segment_rn[depth_array != depth_thresh[-2]] = 0 # Relevant and near
+      segment_vrf[depth_array != depth_thresh[-3]] = 0 # Relevant and near
       
       # ============ Predict the poistion for each object / stuff detected ===================
       h_mod = len(segment_arr) % 3
@@ -767,7 +768,8 @@ class MobileCam(Midas, Detector):
       r_vn = [(pred_class[pred_id.index(i)], id_dict_pos[i]) for i in np.unique(segment_rvn) if i != 0]
       vr_n = [(pred_class[pred_id.index(i)], id_dict_pos[i]) for i in np.unique(segment_vrn) if i != 0]
       r_n = [(pred_class[pred_id.index(i)], id_dict_pos[i]) for i in np.unique(segment_rn) if i != 0]
-      print('\nvrvn:', vr_vn, '\nrvn:', r_vn, '\nvr_n:', vr_n, '\nr_n:', r_n)
+      vr_f = [(pred_class[pred_id.index(i)], id_dict_pos[i]) for i in np.unique(segment_rn) if i != 0]
+      print('\nvrvn:', vr_vn, '\nrvn:', r_vn, '\nvr_n:', vr_n, '\nvrf:', vr_f)
       text = []
       vr_vn_len = len(vr_vn) > 0
       #if vr_vn_len:
