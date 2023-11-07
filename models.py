@@ -738,7 +738,7 @@ class MobileCam(Midas, Detector):
       depth_array = self.onVideo_m(frame)
       depth_array = np.rot90(depth_array.T, 2)
       depth_thresh = np.unique(depth_array)
-
+      print('depth done')
       segment_vrvn[depth_array != depth_thresh[-1]] = 0 # Very Relevant and very near
       segment_rvn[depth_array != depth_thresh[-1]] = 0 # Relevant and very near
       segment_vrn[depth_array != depth_thresh[-2]] = 0 # Very Relevant and near
@@ -817,7 +817,7 @@ class MobileCam(Midas, Detector):
       else:
         text = ', a'.join(text)
       
-      #print(text)
+      print(text)
       tts = gTTS(text=text, lang='es') 
       tts.save('1.wav') 
       sound_file = '1.wav'
