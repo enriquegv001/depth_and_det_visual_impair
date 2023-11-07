@@ -469,14 +469,14 @@ class Midas:
       initial_out_img = proximity_out.copy()
       #if self.thresh_m > np.percentile(proximity_out, 75):
       if np.std(initial_out_img) > self.thresh_m:
-        #print('pixels distribution reduced', 'std', np.std(initial_out_img))
+        print('px reduced', 'std', np.std(initial_out_img))
         new_px_dis = proximity_out[proximity_out > np.percentile(proximity_out, 80)] # cut the pixels distribution
         p1 = np.percentile(new_px_dis, 25)  # First quartile (Q1)
         p2 = np.percentile(new_px_dis, 60)  # Second quartile (Q2 or median)
         p3 = np.percentile(new_px_dis, 80)  # Third quartile (Q3)
       
       else:
-        #print('pixels distribution mantained', 'std', np.std(initial_out_img))
+        print('px mantained', 'std', np.std(initial_out_img))
         p1 = np.percentile(proximity_out, 25)  # First quartile (Q1)
         p2 = np.percentile(proximity_out, 75)  # Second quartile (Q2 or median)
         p3 = np.percentile(proximity_out, 90)  # Third quartile (Q3)
@@ -685,19 +685,15 @@ class MobileCam(Midas, Detector):
 
   def MultOut_RealTime(self, disp_pred=False):
     # start streaming video from webcam
-    print('Nothing is captuerd jet')
     video_stream()
     # label for video
     label_html = 'Capturing...'
     # initialze bounding box to empty
     bbox = ''
     count = 0
-    print(label_html)
     #while True:
     js_reply = video_frame(label_html, bbox)
-    print('paso video_frame and js')
     if not js_reply:
-      print('No capture')
       text ='  No se esta grabando  '
       #print(text)
       tts = gTTS(text=text, lang='es') 
@@ -705,16 +701,13 @@ class MobileCam(Midas, Detector):
       sound_file = '1.wav'
       return Audio(sound_file, autoplay=True)
     else:
-      print('capture and nothig')
       # convert JS response to OpenCV Image
       frame = js_to_image(js_reply["img"])
-      print('pass into frame')
       # create transparent overlay for bounding box
       bbox_array = np.zeros([480,640,4], dtype=np.uint8)
 
       # ========================== hierarchy for obj detection ====================================
       segment_arr, hierarchy_arr, SegmentInfo, bbox_array[:,:,3] = self.onVideo_d(frame)
-      print('first prediction obtained')
       segment_arr, hierarchy_arr = segment_arr.T, hierarchy_arr.T
       pred_id = SegmentInfo['id']
       pred_class = SegmentInfo['class_label']
@@ -738,7 +731,6 @@ class MobileCam(Midas, Detector):
       depth_array = self.onVideo_m(frame)
       depth_array = np.rot90(depth_array.T, 2)
       depth_thresh = np.unique(depth_array)
-      print('depth done')
       segment_vrvn[depth_array != depth_thresh[-1]] = 0 # Very Relevant and very near
       segment_rvn[depth_array != depth_thresh[-1]] = 0 # Relevant and very near
       segment_vrn[depth_array != depth_thresh[-2]] = 0 # Very Relevant and near
@@ -775,7 +767,7 @@ class MobileCam(Midas, Detector):
       r_vn = [(pred_class[pred_id.index(i)], id_dict_pos[i]) for i in np.unique(segment_rvn) if i != 0]
       vr_n = [(pred_class[pred_id.index(i)], id_dict_pos[i]) for i in np.unique(segment_vrn) if i != 0]
       r_n = [(pred_class[pred_id.index(i)], id_dict_pos[i]) for i in np.unique(segment_rn) if i != 0]
-
+      print('\nvrvn:', vr_vn, '\nrvn:', r_vn, '\nvr_n:', vr_n, '\nr_n:', r_n)
       text = []
       vr_vn_len = len(vr_vn) > 0
       #if vr_vn_len:
@@ -813,11 +805,10 @@ class MobileCam(Midas, Detector):
           pass
       
       if len(text)==0:
-        text =['  Sin objetos relevantes  ']
+        text ='  Sin objetos relevantes  '
       else:
         text = ', a'.join(text)
       
-      print(text)
       tts = gTTS(text=text, lang='es') 
       tts.save('1.wav') 
       sound_file = '1.wav'
