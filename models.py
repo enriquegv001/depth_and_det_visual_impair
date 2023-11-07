@@ -398,8 +398,8 @@ class Midas:
       else:
         print('pixels distribution mantained', 'std', np.std(initial_out_img))
         p1 = np.percentile(proximity_out, 25)  # First quartile (Q1)
-        p2 = np.percentile(proximity_out, 75)  # Second quartile (Q2 or median)
-        p3 = np.percentile(proximity_out, 90)  # Third quartile (Q3)
+        p2 = np.percentile(proximity_out, 85)  # Second quartile (Q2 or median)
+        p3 = np.percentile(proximity_out, 95)  # Third quartile (Q3)
 
       print('Percentiles: ', p1, p2, p3)
       proximity_out[proximity_out <= p2] = p1 #far
@@ -816,7 +816,7 @@ class MobileCam(Midas, Detector):
     tts = gTTS(text=text, lang='es') 
     tts.save('1.wav') 
     sound_file = '1.wav'
-    #return Audio(sound_file, autoplay=True)
+    return Audio(sound_file, autoplay=True)
     #cv2.waitKey(3)
 
     
