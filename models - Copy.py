@@ -740,12 +740,115 @@ class MobileCam(Midas, Detector):
       depth_array = self.onVideo_m(frame)
       depth_array = np.rot90(depth_array.T, 2)
       depth_thresh = np.unique(depth_array)
-      segment_vrvn[depth_array != depth_thresh[-1]] = 0 # Very Relevant and very near
+      segment_vrvn[depth_array != depth_thresh[-1]] = 0 # Very Relevant and very near --
       segment_rvn[depth_array != depth_thresh[-1]] = 0 # Relevant and very near
-      segment_vrn[depth_array != depth_thresh[-2]] = 0 # Very Relevant and near
+      segment_vrn[depth_array != depth_thresh[-2]] = 0 # Very Relevant and near --
       segment_rn[depth_array != depth_thresh[-2]] = 0 # Relevant and near
-      segment_vrf[depth_array != depth_thresh[-3]] = 0 # Relevant and near      
-     
+      segment_vrf[depth_array != depth_thresh[-3]] = 0 # Very Relevant and far --  
+
+      # ------------------- hierarchy for depth, using object percentage ---------------------
+      # For each object detect the number of pixels that correspond to each object
+      segment_relevant = segment_arr.copy()
+      segment_relevant[hierarchy_arr != 1] = 0
+
+      # Get the unique classes
+      pred_depth_pos = {id:{} for id in pred_id}
+
+      # To the segment_relevant matrix get the layers for each object
+      # Do a for loop for the class in each layer and count the pixels that each layer matches just very relevant classes
+      unique_vn, counts_vn = np.unique(segment_vrvn, return_counts = True)  
+      unique_n, counts_n = np.unique(segment_vrn, return_counts = True)  
+      unique_f, counts_f = np.unique(segment_vrf, return_counts = True)  
+      
+      # Determine the highest frequency for each class
+      # iteration on the classes and in case they are in the unique values. Then get the unique counts
+      for c in pred_depth_pos:
+        vn, n, f = 0,0,0
+        if c in unique_vn:
+          vn = counts_vn[np.where(np.array(unique_vn) == c)]
+        if c in unique_n:
+           n = counts_n[np.where(np.array(unique_n) == c)]
+        if c in unique_f:
+           f = counts_f[np.where(np.array(unique_f) == c)]
+        id_max = np.argmax([vn, n, f])
+        if id_max == 0:
+           layer = 'vn'
+        elif id_max == 1:
+           layer = 'n'
+        elif id_max == 3:
+           layer = 'f'
+
+        pred_depth_pos[c]['layer'] = layer
+        
+      # Select just the ones that are very relevant and in the middle range
+      pred_depth_pos = {k:pred_depth_pos[k] for k in pred_depth_pos if pred_depth_pos[k]['layer']=='n'}
+
+      # Restructures the objects postition
+      # ------------------ Predict the poistion for each object / stuff detected -----------------
+      h_mod = len(segment_arr) % 3
+      w_mod = len(segment_arr[0]) % 3
+      if h_mod != 0:
+          segment_arr = segment_arr[:-h_mod, :]
+      if w_mod != 0:
+          segment_arr = segment_arr[:, :-w_mod]
+
+      # get the amount the amount of pixels they correspond for each quadrant 
+      # INVERTED TO THE IMAGES
+      h = len(segment_arr) // 3 
+      w = len(segment_arr[0]) # // 3
+      
+      # devided into grid of 3 x 1
+      quad = [segment_arr[2*h:, :], segment_arr[h:2*h, :], segment_arr[:h, :]] 
+      
+      quad_dict = {0: 'iz', 1: 'fr', 2: 'de'}
+
+      # class unique class id
+      id_dict_pos = {l:np.array([]) for l in pred_id}
+
+      # loop for class get the lenght of which appears per column, and select the position with the max pixel numbers
+      for k in pred_depth_pos:
+          pred_depth_pos[k]['pos'] = []
+          for q in quad:
+              pred_depth_pos[k]['pos'].append(len(q[q == k]))    #np.append(len(q[q == k]), id_dict_pos[k][0])
+          #id_dict_pos[k] = quad_dict[np.where(id_dict_pos[k] == max(id_dict_pos[k]))[0][0]] #[::-1] index for quadrant
+          pred_depth_pos[k]['pos'] = quad_dict[pred_depth_pos[k]['pos'].index(max(id_dict_pos[k]))] # [0][0] #[::-1] index for quadrant
+
+      # Select just the ones that are very relevant and in the middle range
+      pred_depth_pos = {k:pred_depth_pos[k]['pos'] for k in pred_depth_pos if pred_depth_pos[k]['layer']=='n'}
+
+      text = []
+      if len(pred_depth_pos) > 0 :
+        text.append(' ')
+        iz, fr, de = [' su izquierda '], ['l frente '], [' su derecha ']
+        for p in pred_depth_pos:
+          pred_lab = pred_class[pred_id.index(p)]
+          pred_pos = pred_depth_pos[p]
+          if pred_pos == 'iz':                             
+            iz.append(pred_lab + ' ')
+          elif pred_pos == 'fr':                 
+            fr.append(pred_lab + ' ')
+          elif pred_pos == 'de':
+              de.append(pred_lab + ' ')
+        if len(iz) > 1:
+          text.append(' '.join(iz))
+        if len(fr) > 1:
+          text.append(' '.join(fr))
+        if len(de) > 1:
+          text.append(' '.join(de))
+          
+      if len(text)==0:
+        text ='  Sin objetos relevantes  '
+      else:
+        text = ', a'.join(text)
+      
+      tts = gTTS(text=text, lang='es') 
+      tts.save('1.wav') 
+      sound_file = '1.wav'
+      return Audio(sound_file, autoplay=True)
+      #cv2.waitKey(3)
+
+
+      """
       # ============ Predict the poistion for each object / stuff detected ===================
       h_mod = len(segment_arr) % 3
       w_mod = len(segment_arr[0]) % 3
@@ -824,7 +927,7 @@ class MobileCam(Midas, Detector):
       tts = gTTS(text=text, lang='es') 
       tts.save('1.wav') 
       sound_file = '1.wav'
-      #return Audio(sound_file, autoplay=True)
-      #cv2.waitKey(3)
-      return 
+      return Audio(sound_file, autoplay=True)
+      #cv2.waitKey(3)"""
+
     
