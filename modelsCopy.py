@@ -481,13 +481,13 @@ class Midas:
         print('px reduced', 'std', np.std(initial_out_img))
         new_px_dis = proximity_out[proximity_out > np.percentile(proximity_out, 60)] # cut the pixels distribution
         p1 = np.percentile(new_px_dis, 25)  # First quartile (Q1)
-        p2 = np.percentile(new_px_dis, 60)  # Second quartile (Q2 or median)
+        p2 = np.percentile(new_px_dis, 50)  # Second quartile (Q2 or median)
         p3 = np.percentile(new_px_dis, 99)  # Third quartile (Q3)
       
       else:
         print('px mantained', 'std', np.std(initial_out_img))
         p1 = np.percentile(proximity_out, 25)  # First quartile (Q1)
-        p2 = np.percentile(proximity_out, 60)  # Second quartile (Q2 or median)
+        p2 = np.percentile(proximity_out, 50)  # Second quartile (Q2 or median)
         p3 = np.percentile(proximity_out, 99)  # Third quartile (Q3)
 
       proximity_out[proximity_out <= p2] = p1 #far
@@ -745,80 +745,85 @@ class MobileCam(Midas, Detector):
       segment_vrn[depth_array != depth_thresh[-2]] = 0 # Very Relevant and near --
       segment_rn[depth_array != depth_thresh[-2]] = 0 # Relevant and near
       segment_vrf[depth_array != depth_thresh[-3]] = 0 # Very Relevant and far --  
-      return segment_arr, hierarchy_arr, SegmentInfo, depth_array
-      """
+
+      #return segment_arr, hierarchy_arr, SegmentInfo, depth_array
+      pred_id = SegmentInfo['id']
+      pred_class = SegmentInfo['class_label']
+
+      segment_veryrel = segment_arr.copy()
+      segment_veryrel[hierarchy_arr != 1] = 0 
+      # very near, near, far
+      segment_vrvn, segment_vrn, segment_vrf = segment_veryrel.copy(), segment_veryrel.copy(), segment_veryrel.copy()
+
+      # ============================ hierarchy for depth ====================================
+      depth_thresh = np.unique(depth_array)
+      segment_vrvn[depth_array != depth_thresh[-1]] = 0 # Very Relevant and very near --
+      segment_vrn[depth_array != depth_thresh[-2]] = 0 # Very Relevant and near --
+      segment_vrf[depth_array != depth_thresh[-3]] = 0 # Very Relevant and far --  
+
       # ------------------- hierarchy for depth, using object percentage ---------------------
       # For each object detect the number of pixels that correspond to each object
       segment_relevant = segment_arr.copy()
       segment_relevant[hierarchy_arr != 1] = 0
 
-      # Get the unique classes
-      pred_depth_pos = {id:{} for id in pred_id}
 
       # To the segment_relevant matrix get the layers for each object
       # Do a for loop for the class in each layer and count the pixels that each layer matches just very relevant classes
       unique_vn, counts_vn = np.unique(segment_vrvn, return_counts = True)  
       unique_n, counts_n = np.unique(segment_vrn, return_counts = True)  
       unique_f, counts_f = np.unique(segment_vrf, return_counts = True)  
-      
-      # Determine the highest frequency for each class
-      # iteration on the classes and in case they are in the unique values. Then get the unique counts
-      for c in pred_depth_pos:
-        vn, n, f = 0,0,0
-        if c in unique_vn:
-          vn = counts_vn[np.where(np.array(unique_vn) == c)]
-        if c in unique_n:
-           n = counts_n[np.where(np.array(unique_n) == c)]
-        if c in unique_f:
-           f = counts_f[np.where(np.array(unique_f) == c)]
-        id_max = np.argmax([vn, n, f])
-        if id_max == 0:
-           layer = 'vn'
-        elif id_max == 1:
-           layer = 'n'
-        elif id_max == 3:
-           layer = 'f'
+      for i in unique_vn:
+        if i != 0:
+          print('vn', pred_class[pred_id.index(i)])
+      for i in unique_n:
+        if i != 0:
+          print('n', pred_class[pred_id.index(i)])
+      for i in unique_f:
+        if i != 0:
+          print('f', pred_class[pred_id.index(i)])
 
-        pred_depth_pos[c]['layer'] = layer
-        
-      # Select just the ones that are very relevant and in the middle range
-      pred_depth_pos = {k:pred_depth_pos[k] for k in pred_depth_pos if pred_depth_pos[k]['layer']=='n'}
-
-      # Restructures the objects postition
-      # ------------------ Predict the poistion for each object / stuff detected -----------------
+      # Predict the poistion for each object / stuff detected 
       h_mod = len(segment_arr) % 3
       w_mod = len(segment_arr[0]) % 3
       if h_mod != 0:
-          segment_arr = segment_arr[:-h_mod, :]
+          segment_arr_cut = segment_arr[:-h_mod, :]
       if w_mod != 0:
-          segment_arr = segment_arr[:, :-w_mod]
+          segment_arr_cut = segment_arr[:, :-w_mod]
 
       # get the amount the amount of pixels they correspond for each quadrant 
       # INVERTED TO THE IMAGES
-      h = len(segment_arr) // 3 
-      w = len(segment_arr[0]) # // 3
-      
+      h = len(segment_arr_cut) // 3 
+      w = len(segment_arr_cut[0]) # // 3
+
       # devided into grid of 3 x 1
-      quad = [segment_arr[2*h:, :], segment_arr[h:2*h, :], segment_arr[:h, :]] 
-      
+      quad = [segment_arr_cut[:h, :], segment_arr_cut[h:2*h, :], segment_arr_cut[2*h:, :]] 
+
       quad_dict = {0: 'iz', 1: 'fr', 2: 'de'}
 
-      # class unique class id
-      id_dict_pos = {l:np.array([]) for l in pred_id}
+      # dict for near obj
+      pred_depth_pos = {}
 
-      # loop for class get the lenght of which appears per column, and select the position with the max pixel numbers
-      for k in pred_depth_pos:
-          pred_depth_pos[k]['pos'] = []
-          for q in quad:
-              pred_depth_pos[k]['pos'].append(len(q[q == k]))    #np.append(len(q[q == k]), id_dict_pos[k][0])
-          #id_dict_pos[k] = quad_dict[np.where(id_dict_pos[k] == max(id_dict_pos[k]))[0][0]] #[::-1] index for quadrant
-          pred_depth_pos[k]['pos'] = quad_dict[pred_depth_pos[k]['pos'].index(max(id_dict_pos[k]))] # [0][0] #[::-1] index for quadrant
+      # Determine the highest frequency for each class
+      # iteration on the classes and in case they are in the unique values. Then get the unique counts
+      for c in unique_n:
+        if c != 0:
+          vn, n, f = 0,0,0
+          if c in unique_vn:
+              vn = counts_vn[np.where(np.array(unique_vn) == c)][0]
+          if c in unique_n:
+              n = counts_n[np.where(np.array(unique_n) == c)][0]
+          if c in unique_f:
+              f = counts_f[np.where(np.array(unique_f) == c)][0]
 
-      # Select just the ones that are very relevant and in the middle range
-      pred_depth_pos = {k:pred_depth_pos[k]['pos'] for k in pred_depth_pos if pred_depth_pos[k]['layer']=='n'}
+          print(pred_class[pred_id.index(c)], n / (vn + n + f))
+          # select just the objects in the middle with more than 75%
+          if n / (vn + n + f) >= 0.30:
+            #get the position
+            pred_depth_pos[c] = quad_dict[np.argmax([len(q[q == c]) for q in quad])] 
+
 
       text = []
-      if len(pred_depth_pos) > 0 :
+      if len(pred_depth_pos) > 0:
         text.append(' ')
         iz, fr, de = [' su izquierda '], ['l frente '], [' su derecha ']
         for p in pred_depth_pos:
@@ -836,99 +841,13 @@ class MobileCam(Midas, Detector):
           text.append(' '.join(fr))
         if len(de) > 1:
           text.append(' '.join(de))
-          
+            
       if len(text)==0:
         text ='  Sin objetos relevantes  '
       else:
         text = ', a'.join(text)
-      
+
       tts = gTTS(text=text, lang='es') 
       tts.save('1.wav') 
       sound_file = '1.wav'
       return Audio(sound_file, autoplay=True)
-      #cv2.waitKey(3)
-      """
-
-      """
-      # ============ Predict the poistion for each object / stuff detected ===================
-      h_mod = len(segment_arr) % 3
-      w_mod = len(segment_arr[0]) % 3
-      if h_mod != 0:
-          segment_arr = segment_arr[:-h_mod, :]
-      if w_mod != 0:
-          segment_arr = segment_arr[:, :-w_mod]
-
-      # get the amount the amount of pixels they correspond for each quadrant 
-      # INVERTED TO THE IMAGES
-      h = len(segment_arr) // 3 
-      w = len(segment_arr[0]) # // 3
-      
-      # devided into grid of 3 x 1
-      quad = [segment_arr[2*h:, :], segment_arr[h:2*h, :], segment_arr[:h, :]] 
-      
-      quad_dict = {0: 'iz', 1: 'fr', 2: 'de'}
-
-      # class unique class id
-      id_dict_pos = {l:np.array([]) for l in pred_id}
-
-      for k in id_dict_pos:
-          for q in quad:
-              id_dict_pos[k] = np.append(len(q[q == k]), id_dict_pos[k])
-          id_dict_pos[k] = quad_dict[np.where(id_dict_pos[k] == max(id_dict_pos[k]))[0][0]] #[::-1] index for quadrant
-
-      # ========================================= display ==================================
-      vr_vn = [(pred_class[pred_id.index(i)], id_dict_pos[i]) for i in np.unique(segment_vrvn) if i != 0]
-      #print('\nVery Relevant, Very Near:', vr_vn)
-      r_vn = [(pred_class[pred_id.index(i)], id_dict_pos[i]) for i in np.unique(segment_rvn) if i != 0]
-      vr_n = [(pred_class[pred_id.index(i)], id_dict_pos[i]) for i in np.unique(segment_vrn) if i != 0]
-      r_n = [(pred_class[pred_id.index(i)], id_dict_pos[i]) for i in np.unique(segment_rn) if i != 0]
-      vr_f = [(pred_class[pred_id.index(i)], id_dict_pos[i]) for i in np.unique(segment_rn) if i != 0]
-      print('\nvrvn:', vr_vn, '\nrvn:', r_vn, '\nvr_n:', vr_n, '\nvrf:', vr_f)
-      text = []
-      vr_vn_len = len(vr_vn) > 0
-      #if vr_vn_len:
-      #  text.append('\nprecaución acercándose a')
-      #  #[print(p[0] + ' '+ p[1] + ' ') for p in vr_vn]
-      #  [text.append(p[0] + ' '+ p[1] + ' ') for p in vr_vn]
-
-      #if len(r_vn) > 0:
-        #if not vr_vn_len:
-        #text.append('\nprecaución acercándose a')
-        #[text.append(p[0] + ' '+ p[1] + ' ') for p in r_vn]
-          
-      vr_n_l = len(vr_n) > 0
-      if vr_n_l:
-        text.append(' ')
-        iz, fr, de = [' su izquierda '], ['l frente '], [' su derecha ']
-        for p in vr_n:
-          if p[1] == 'iz':                             
-            iz.append(p[0] + ' ')
-          elif p[1] == 'fr':                 
-            fr.append(p[0] + ' ')
-          elif p[1] == 'de':
-              de.append(p[0] + ' ')
-        if len(iz) > 1:
-          text.append(' '.join(iz))
-        if len(fr) > 1:
-          text.append(' '.join(fr))
-        if len(de) > 1:
-          text.append(' '.join(de))
-          
-      if len(r_n) > 0:
-        #if not vr_n_l:
-        #  text.append('\npróximamente')
-        #[text.append(p[0] + ' '+ p[1] + ' ') for p in r_n]
-          pass
-      
-      if len(text)==0:
-        text ='  Sin objetos relevantes  '
-      else:
-        text = ', a'.join(text)
-      
-      tts = gTTS(text=text, lang='es') 
-      tts.save('1.wav') 
-      sound_file = '1.wav'
-      return Audio(sound_file, autoplay=True)
-      #cv2.waitKey(3)"""
-
-    

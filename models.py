@@ -824,7 +824,7 @@ class MobileCam(Midas, Detector):
       tts = gTTS(text=text, lang='es') 
       tts.save('1.wav') 
       sound_file = '1.wav'
-      #return Audio(sound_file, autoplay=True)
+      return Audio(sound_file, autoplay=True)
       #cv2.waitKey(3)
-      return 
+    
     
