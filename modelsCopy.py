@@ -245,7 +245,7 @@ class Detector:
 
 
       #cv2.imshow("Result", output.get_image()[:,:,::-1])
-      #cv2_imshow(output.get_image()[:,:,::-1])
+      cv2_imshow(output.get_image()[:,:,::-1])
       #cv2.waitKey(0)
       return pred_arr, pred_hierarchy, Info_with_label, output.get_image()[:,:,::-1][:,:,1]
 
@@ -390,16 +390,16 @@ class Midas:
       #if self.thresh_m > np.percentile(proximity_out, 75):
       if np.std(initial_out_img) > self.thresh_m:
         print('pixels distribution reduced', 'std', np.std(initial_out_img))
-        new_px_dis = proximity_out[proximity_out > np.percentile(proximity_out, 80)] # cut the pixels distribution
-        p1 = np.percentile(new_px_dis, 25)  # First quartile (Q1)
-        p2 = np.percentile(new_px_dis, 60)  # Second quartile (Q2 or median)
-        p3 = np.percentile(new_px_dis, 80)  # Third quartile (Q3)
+        new_px_dis = proximity_out[proximity_out > np.percentile(proximity_out, 30)] # cut the pixels distribution
+        p1 = np.percentile(new_px_dis, 1)  # First quartile (Q1)
+        p2 = np.percentile(new_px_dis, 2)  # Second quartile (Q2 or median)
+        p3 = np.percentile(new_px_dis, 30)  # Third quartile (Q3)
       
       else:
         print('pixels distribution mantained', 'std', np.std(initial_out_img))
-        p1 = np.percentile(proximity_out, 25)  # First quartile (Q1)
-        p2 = np.percentile(proximity_out, 85)  # Second quartile (Q2 or median)
-        p3 = np.percentile(proximity_out, 95)  # Third quartile (Q3)
+        p1 = np.percentile(proximity_out, 1)  # First quartile (Q1)
+        p2 = np.percentile(proximity_out, 2)  # Second quartile (Q2 or median)
+        p3 = np.percentile(proximity_out, 30)  # Third quartile (Q3)
 
       print('Percentiles: ', p1, p2, p3)
       proximity_out[proximity_out <= p2] = p1 #far
@@ -481,13 +481,13 @@ class Midas:
         print('px reduced', 'std', np.std(initial_out_img))
         new_px_dis = proximity_out[proximity_out > np.percentile(proximity_out, 85)] # cut the pixels distribution
         p1 = np.percentile(new_px_dis, 25)  # First quartile (Q1)
-        p2 = np.percentile(new_px_dis, 95)  # Second quartile (Q2 or median)
+        p2 = np.percentile(new_px_dis, 90)  # Second quartile (Q2 or median)
         p3 = np.percentile(new_px_dis, 99)  # Third quartile (Q3)
       
       else:
         print('px mantained', 'std', np.std(initial_out_img))
         p1 = np.percentile(proximity_out, 25)  # First quartile (Q1)
-        p2 = np.percentile(proximity_out, 95)  # Second quartile (Q2 or median)
+        p2 = np.percentile(proximity_out, 90)  # Second quartile (Q2 or median)
         p3 = np.percentile(proximity_out, 99)  # Third quartile (Q3)
 
       proximity_out[proximity_out <= p2] = p1 #far
@@ -738,14 +738,15 @@ class MobileCam(Midas, Detector):
 
       # ============================ hierarchy for depth ====================================
       depth_array = self.onVideo_m(frame)
-      depth_array = np.rot90(depth_array.T, 2)
+      depth_array = depth_array.T
       depth_thresh = np.unique(depth_array)
       segment_vrvn[depth_array != depth_thresh[-1]] = 0 # Very Relevant and very near --
       segment_rvn[depth_array != depth_thresh[-1]] = 0 # Relevant and very near
       segment_vrn[depth_array != depth_thresh[-2]] = 0 # Very Relevant and near --
       segment_rn[depth_array != depth_thresh[-2]] = 0 # Relevant and near
       segment_vrf[depth_array != depth_thresh[-3]] = 0 # Very Relevant and far --  
-
+      return segment_arr, hierarchy_arr, SegmentInfo, depth_array
+      """
       # ------------------- hierarchy for depth, using object percentage ---------------------
       # For each object detect the number of pixels that correspond to each object
       segment_relevant = segment_arr.copy()
@@ -846,7 +847,7 @@ class MobileCam(Midas, Detector):
       sound_file = '1.wav'
       return Audio(sound_file, autoplay=True)
       #cv2.waitKey(3)
-
+      """
 
       """
       # ============ Predict the poistion for each object / stuff detected ===================
