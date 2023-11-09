@@ -437,7 +437,7 @@ class Midas:
 
   def onVideo_m(self, frame):
       # load image and apply transformers
-      start_time = time.time()
+      #start_time = time.time()
       img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
       #print('trans pross:' , self.trans_processing)
       input_batch = self.trans_processing(img).to(self.device)
@@ -466,29 +466,29 @@ class Midas:
       # array with the new values
       proximity_out = (proximity_out-min(unique_out))*(255/(max(unique_out)-min(unique_out)))
       
-      fig, ax = plt.subplots()
-      ax.imshow(proximity_out)
-      w = len(proximity_out[0]) / 3
-      ax.axvline(x= w, color='red', linestyle='--', linewidth=2) 
-      ax.axvline(x= w*2 , color='red', linestyle='--', linewidth=2) 
-      plt.show()
+      #fig, ax = plt.subplots()
+      #ax.imshow(proximity_out)
+      #w = len(proximity_out[0]) / 3
+      #ax.axvline(x= w, color='red', linestyle='--', linewidth=2) 
+      #ax.axvline(x= w*2 , color='red', linestyle='--', linewidth=2) 
+      #plt.show()
 
 
 
       initial_out_img = proximity_out.copy()
       #if self.thresh_m > np.percentile(proximity_out, 75):
       if np.std(initial_out_img) > self.thresh_m:
-        print('px reduced', 'std', np.std(initial_out_img))
-        new_px_dis = proximity_out[proximity_out > np.percentile(proximity_out, 85)] # cut the pixels distribution
+        #print('px reduced', 'std', np.std(initial_out_img))
+        new_px_dis = proximity_out[proximity_out > np.percentile(proximity_out, 70)] # cut the pixels distribution
         p1 = np.percentile(new_px_dis, 25)  # First quartile (Q1)
-        p2 = np.percentile(new_px_dis, 95)  # Second quartile (Q2 or median)
-        p3 = np.percentile(new_px_dis, 99)  # Third quartile (Q3)
+        p2 = np.percentile(new_px_dis, 63)  # Second quartile (Q2 or median)
+        p3 = np.percentile(new_px_dis, 99.9)  # Third quartile (Q3)
       
       else:
-        print('px mantained', 'std', np.std(initial_out_img))
+        #print('px mantained', 'std', np.std(initial_out_img))
         p1 = np.percentile(proximity_out, 25)  # First quartile (Q1)
-        p2 = np.percentile(proximity_out, 95)  # Second quartile (Q2 or median)
-        p3 = np.percentile(proximity_out, 99)  # Third quartile (Q3)
+        p2 = np.percentile(proximity_out, 63)  # Second quartile (Q2 or median)
+        p3 = np.percentile(proximity_out, 99.9)  # Third quartile (Q3)
 
       proximity_out[proximity_out <= p2] = p1 #far
       proximity_out[(proximity_out > p2) & (proximity_out <= p3)] = p2 #near
@@ -699,7 +699,7 @@ class MobileCam(Midas, Detector):
     label_html = 'Capturing...'
     # initialze bounding box to empty
     bbox = ''
-    count = 0
+    #count = 0
     #while True:
     js_reply = video_frame(label_html, bbox)
     if not js_reply:
@@ -716,7 +716,10 @@ class MobileCam(Midas, Detector):
       bbox_array = np.zeros([480,640,4], dtype=np.uint8)
 
       # ========================== hierarchy for obj detection ====================================
+      startA = time.time()
       segment_arr, hierarchy_arr, SegmentInfo, bbox_array[:,:,3] = self.onVideo_d(frame)
+      print('Detectron2 model: ', time.time()-startA)
+      
       segment_arr, hierarchy_arr = segment_arr.T, hierarchy_arr.T
       pred_id = SegmentInfo['id']
       pred_class = SegmentInfo['class_label']
@@ -729,102 +732,144 @@ class MobileCam(Midas, Detector):
 
       #print(pred_class)
       segment_arr = segment_arr.numpy()
-      segment_vrvn, segment_vrn, segment_rvn, segment_rn, segment_vrf = segment_arr.copy(), segment_arr.copy(), segment_arr.copy(), segment_arr.copy(), segment_arr.copy()
+      segment_vrvn, segment_vrn, segment_vrf = segment_arr.copy(), segment_arr.copy(), segment_arr.copy()
       segment_vrvn[hierarchy_arr != 1] = 0 # very relevant very near
-      segment_rvn[hierarchy_arr != 2] = 0 # relevant very near
       segment_vrn[hierarchy_arr != 1] = 0 # very relevant near
-      segment_rn[hierarchy_arr != 2] = 0 # relevant near
       segment_vrf[hierarchy_arr != 1] = 0 # very relevant far
-
-      # ============================ hierarchy for depth ====================================
+      print('Hierarchy time: ', time.time()-startA)
+      
+      # ============================ Proximinity from depth ====================================
+      startB = time.time()
       depth_array = self.onVideo_m(frame)
-      depth_array = np.rot90(depth_array.T, 2)
+      print('Midas model: ', time.time()-startB)
+      depth_array = depth_array.T
       depth_thresh = np.unique(depth_array)
-      segment_vrvn[depth_array != depth_thresh[-1]] = 0 # Very Relevant and very near
-      segment_rvn[depth_array != depth_thresh[-1]] = 0 # Relevant and very near
-      segment_vrn[depth_array != depth_thresh[-2]] = 0 # Very Relevant and near
-      segment_rn[depth_array != depth_thresh[-2]] = 0 # Relevant and near
-      segment_vrf[depth_array != depth_thresh[-3]] = 0 # Relevant and near      
-     
-      # ============ Predict the poistion for each object / stuff detected ===================
+      segment_vrvn[depth_array != depth_thresh[-1]] = 0 # Very Relevant and very near --
+      segment_vrn[depth_array != depth_thresh[-2]] = 0 # Very Relevant and near --
+      segment_vrf[depth_array != depth_thresh[-3]] = 0 # Very Relevant and far --  
+
+      #return segment_arr, hierarchy_arr, SegmentInfo, depth_array
+      pred_id = SegmentInfo['id']
+      pred_class = SegmentInfo['class_label']
+
+      segment_veryrel = segment_arr.copy()
+      segment_veryrel[hierarchy_arr != 1] = 0 
+      # very near, near, far
+      segment_vrvn, segment_vrn, segment_vrf = segment_veryrel.copy(), segment_veryrel.copy(), segment_veryrel.copy()
+      
+      # ------------------- hierarchy for depth, using object percentage ---------------------
+      # For each object detect the number of pixels that correspond to each object
+      #segment_relevant = segment_arr.copy()
+      #segment_relevant[hierarchy_arr != 1] = 0
+
+
+      # To the segment_relevant matrix get the layers for each object
+      # Do a for loop for the class in each layer and count the pixels that each layer matches just very relevant classes
+      unique_vn, counts_vn = np.unique(segment_vrvn, return_counts = True)  
+      unique_n, counts_n = np.unique(segment_vrn, return_counts = True)  
+      unique_f, counts_f = np.unique(segment_vrf, return_counts = True)  
+      for i in unique_vn:
+        if i != 0:
+          print('vn', pred_class[pred_id.index(i)])
+      for i in unique_n:
+        if i != 0:
+          print('n', pred_class[pred_id.index(i)])
+      for i in unique_f:
+        if i != 0:
+          print('f', pred_class[pred_id.index(i)])
+      print('Proximinty time: ', time.time()-startB)
+
+      # --------- Predict the poistion for each object / stuff detected -------------
+      startC = time.time()
       h_mod = len(segment_arr) % 3
       w_mod = len(segment_arr[0]) % 3
       if h_mod != 0:
-          segment_arr = segment_arr[:-h_mod, :]
+          segment_arr_cut = segment_arr[:-h_mod, :]
       if w_mod != 0:
-          segment_arr = segment_arr[:, :-w_mod]
+          segment_arr_cut = segment_arr[:, :-w_mod]
 
       # get the amount the amount of pixels they correspond for each quadrant 
       # INVERTED TO THE IMAGES
-      h = len(segment_arr) // 3 
-      w = len(segment_arr[0]) # // 3
-      
+      h = len(segment_arr_cut) // 3 
+      #w = len(segment_arr_cut[0]) # // 3
+
       # devided into grid of 3 x 1
-      quad = [segment_arr[2*h:, :], segment_arr[h:2*h, :], segment_arr[:h, :]] 
-      
+      quad = [segment_arr_cut[:h, :], segment_arr_cut[h:2*h, :], segment_arr_cut[2*h:, :]] 
+
       quad_dict = {0: 'iz', 1: 'fr', 2: 'de'}
 
-      # class unique class id
-      id_dict_pos = {l:np.array([]) for l in pred_id}
+      # dict for near obj
+      pred_depth_pos = {}
+      print('Proximinty position: ', time.time()-startC)
 
-      for k in id_dict_pos:
-          for q in quad:
-              id_dict_pos[k] = np.append(len(q[q == k]), id_dict_pos[k])
-          id_dict_pos[k] = quad_dict[np.where(id_dict_pos[k] == max(id_dict_pos[k]))[0][0]] #[::-1] index for quadrant
+      # --------------- Highest frequency pixels per layer------------------
+      # iteration on the classes and in case they are in the unique values. Then get the unique counts
+      startD = time.time()
+      for c in unique_n:
+        if c != 0:
+          vn, n, f = 0,0,0
+          if c in unique_vn:
+              vn = counts_vn[np.where(np.array(unique_vn) == c)][0]
+          if c in unique_n:
+              n = counts_n[np.where(np.array(unique_n) == c)][0]
+          if c in unique_f:
+              f = counts_f[np.where(np.array(unique_f) == c)][0]
 
-      # ========================================= display ==================================
-      vr_vn = [(pred_class[pred_id.index(i)], id_dict_pos[i]) for i in np.unique(segment_vrvn) if i != 0]
-      #print('\nVery Relevant, Very Near:', vr_vn)
-      r_vn = [(pred_class[pred_id.index(i)], id_dict_pos[i]) for i in np.unique(segment_rvn) if i != 0]
-      vr_n = [(pred_class[pred_id.index(i)], id_dict_pos[i]) for i in np.unique(segment_vrn) if i != 0]
-      r_n = [(pred_class[pred_id.index(i)], id_dict_pos[i]) for i in np.unique(segment_rn) if i != 0]
-      vr_f = [(pred_class[pred_id.index(i)], id_dict_pos[i]) for i in np.unique(segment_rn) if i != 0]
-      print('\nvrvn:', vr_vn, '\nrvn:', r_vn, '\nvr_n:', vr_n, '\nvrf:', vr_f)
-      text = []
-      vr_vn_len = len(vr_vn) > 0
-      #if vr_vn_len:
-      #  text.append('\nprecaución acercándose a')
-      #  #[print(p[0] + ' '+ p[1] + ' ') for p in vr_vn]
-      #  [text.append(p[0] + ' '+ p[1] + ' ') for p in vr_vn]
+          print(pred_class[pred_id.index(c)], n / (vn + n + f))
+          # select just the objects in the middle with more pixels than percent percent liminit
+          if n / (vn + n + f) >= 0.40:
+            #get the position
+            pred_depth_pos[c] = quad_dict[np.argmax([len(q[q == c]) for q in quad])] 
+        print('Frequency of pixels', time.time()-startD)
+        
+        # =============== Text gen and speech =========================
+        startE = time.time()
+        #change output text to prural
+        def count_obj(pos_list):
+          unique_w, counts_w = np.unique(pos_list, return_counts = True)
+          list_out = unique_w.tolist().copy()
+          for word, count in zip(unique_w, counts_w):
+            if count > 1:
+              list_out.remove(word)
+              list_out.append(f"{count} {word[:-1]}s")
+          return list_out
 
-      #if len(r_vn) > 0:
-        #if not vr_vn_len:
-        #text.append('\nprecaución acercándose a')
-        #[text.append(p[0] + ' '+ p[1] + ' ') for p in r_vn]
-          
-      vr_n_l = len(vr_n) > 0
-      if vr_n_l:
-        text.append(' ')
-        iz, fr, de = [' su izquierda '], ['l frente '], [' su derecha ']
-        for p in vr_n:
-          if p[1] == 'iz':                             
-            iz.append(p[0] + ' ')
-          elif p[1] == 'fr':                 
-            fr.append(p[0] + ' ')
-          elif p[1] == 'de':
-              de.append(p[0] + ' ')
-        if len(iz) > 1:
-          text.append(' '.join(iz))
-        if len(fr) > 1:
-          text.append(' '.join(fr))
-        if len(de) > 1:
-          text.append(' '.join(de))
-          
-      if len(r_n) > 0:
-        #if not vr_n_l:
-        #  text.append('\npróximamente')
-        #[text.append(p[0] + ' '+ p[1] + ' ') for p in r_n]
-          pass
+        text = []
+        if len(pred_depth_pos) > 0:
+          text.append(' ')
+          iz, fr, de = [' su izquierda '], ['l frente '], [' su derecha ']
+          for p in pred_depth_pos:
+            pred_lab = pred_class[pred_id.index(p)]
+            pred_pos = pred_depth_pos[p]
+            if pred_pos == 'iz':                             
+              iz.append(pred_lab + ' ')
+            elif pred_pos == 'fr':                 
+              fr.append(pred_lab + ' ')
+            elif pred_pos == 'de':
+                de.append(pred_lab + ' ')
+
+          iz, fr, de = count_obj(iz), count_obj(fr), count_obj(de)
+
+          if len(iz) > 1:
+            text.append(' '.join(iz))
+          if len(fr) > 1:
+            text.append(' '.join(fr))
+          if len(de) > 1:
+            text.append(' '.join(de))
       
+      print('Text gen', time.time()-startE)
       if len(text)==0:
-        text ='  Sin objetos relevantes  '
-      else:
-        text = ', a'.join(text)
+        text ='  sin texto  '
+        tts = gTTS(text=text, lang='es') 
+        tts.save('1.wav') 
+        sound_file = '1.wav'
+        return Audio(sound_file, autoplay=False)
       
-      tts = gTTS(text=text, lang='es') 
-      tts.save('1.wav') 
-      sound_file = '1.wav'
-      return Audio(sound_file, autoplay=True)
-      #cv2.waitKey(3)
-    
-    
+      else:
+        text = ', a'.join(text)  
+        #print(text)
+        tts = gTTS(text=text, lang='es') 
+        tts.save('1.wav') 
+        sound_file = '1.wav'
+        return Audio(sound_file, autoplay=True)
+      
