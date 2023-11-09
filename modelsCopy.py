@@ -761,9 +761,9 @@ class MobileCam(Midas, Detector):
 
       # To the segment_relevant matrix get the layers for each object
       # Do a for loop for the class in each layer and count the pixels that each layer matches just very relevant classes
-      unique_vn, counts_vn = np.unique(segment_vrvn, return_counts = True)  
-      unique_n, counts_n = np.unique(segment_vrn, return_counts = True)  
-      unique_f, counts_f = np.unique(segment_vrf, return_counts = True)  
+      unique_vn, counts_vn = np.unique(segment_vrvn, return_counts = True)
+      unique_n, counts_n = np.unique(segment_vrn, return_counts = True)
+      unique_f, counts_f = np.unique(segment_vrf, return_counts = True)
       for i in unique_vn:
         if i != 0:
           print('vn', pred_class[pred_id.index(i)])
@@ -816,56 +816,56 @@ class MobileCam(Midas, Detector):
           if n / (vn + n + f) >= 0.40:
             #get the position
             pred_depth_pos[c] = quad_dict[np.argmax([len(q[q == c]) for q in quad])] 
-        print('Frequency of pixels', time.time()-startD)
+      print('Frequency of pixels', time.time()-startD)
         
-        # =============== Text gen and speech =========================
-        startE = time.time()
-        #change output text to prural
-        def count_obj(pos_list):
-          unique_w, counts_w = np.unique(pos_list, return_counts = True)
-          list_out = unique_w.tolist().copy()
-          for word, count in zip(unique_w, counts_w):
-            if count > 1:
-              list_out.remove(word)
-              list_out.append(f"{count} {word[:-1]}s")
-          return list_out
+      # =============== Text gen and speech =========================
+      startE = time.time()
+      #change output text to prural
+      def count_obj(pos_list):
+        unique_w, counts_w = np.unique(pos_list, return_counts = True)
+        list_out = unique_w.tolist().copy()
+        for word, count in zip(unique_w, counts_w):
+          if count > 1:
+            list_out.remove(word)
+            list_out.append(f"{count} {word[:-1]}s")
+        return list_out
 
-        text = []
-        if len(pred_depth_pos) > 0:
-          text.append(' ')
-          iz, fr, de = [' su izquierda '], ['l frente '], [' su derecha ']
-          for p in pred_depth_pos:
-            pred_lab = pred_class[pred_id.index(p)]
-            pred_pos = pred_depth_pos[p]
-            if pred_pos == 'iz':                             
-              iz.append(pred_lab + ' ')
-            elif pred_pos == 'fr':                 
-              fr.append(pred_lab + ' ')
-            elif pred_pos == 'de':
-                de.append(pred_lab + ' ')
+      text = []
+      if len(pred_depth_pos) > 0:
+        text.append(' ')
+        iz, fr, de = [' su izquierda '], ['l frente '], [' su derecha ']
+        for p in pred_depth_pos:
+          pred_lab = pred_class[pred_id.index(p)]
+          pred_pos = pred_depth_pos[p]
+          if pred_pos == 'iz':                             
+            iz.append(pred_lab + ' ')
+          elif pred_pos == 'fr':                 
+            fr.append(pred_lab + ' ')
+          elif pred_pos == 'de':
+              de.append(pred_lab + ' ')
 
-          iz, fr, de = count_obj(iz), count_obj(fr), count_obj(de)
+        iz, fr, de = count_obj(iz), count_obj(fr), count_obj(de)
 
-          if len(iz) > 1:
-            text.append(' '.join(iz))
-          if len(fr) > 1:
-            text.append(' '.join(fr))
-          if len(de) > 1:
-            text.append(' '.join(de))
-      
-      print('Text gen', time.time()-startE)
-      if len(text)==0:
-        text ='  sin texto  '
-        tts = gTTS(text=text, lang='es') 
-        tts.save('1.wav') 
-        sound_file = '1.wav'
-        return Audio(sound_file, autoplay=False)
-      
-      else:
-        text = ', a'.join(text)  
-        #print(text)
-        tts = gTTS(text=text, lang='es') 
-        tts.save('1.wav') 
-        sound_file = '1.wav'
-        return Audio(sound_file, autoplay=True)
-      
+        if len(iz) > 1:
+          text.append(' '.join(iz))
+        if len(fr) > 1:
+          text.append(' '.join(fr))
+        if len(de) > 1:
+          text.append(' '.join(de))
+    
+    print('Text gen', time.time()-startE)
+    if len(text)==0:
+      text ='  sin texto  '
+      tts = gTTS(text=text, lang='es') 
+      tts.save('1.wav') 
+      sound_file = '1.wav'
+      return Audio(sound_file, autoplay=False)
+    
+    else:
+      text = ', a'.join(text)  
+      #print(text)
+      tts = gTTS(text=text, lang='es') 
+      tts.save('1.wav') 
+      sound_file = '1.wav'
+      return Audio(sound_file, autoplay=True)
+    
