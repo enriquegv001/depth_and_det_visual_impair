@@ -245,7 +245,7 @@ class Detector:
 
 
       #cv2.imshow("Result", output.get_image()[:,:,::-1])
-      cv2_imshow(output.get_image()[:,:,::-1])
+      #cv2_imshow(output.get_image()[:,:,::-1])
       #cv2.waitKey(0)
       return pred_arr, pred_hierarchy, Info_with_label, output.get_image()[:,:,::-1][:,:,1]
 
@@ -378,30 +378,30 @@ class Midas:
       print('\nnormalized to range(0,255):', min(np.unique(proximity_out)), max(np.unique(proximity_out)))
 
       
-      fig, ax = plt.subplots()
-      ax.imshow(proximity_out)
-      w = len(proximity_out[0]) / 3
-      ax.axvline(x= w, color='red', linestyle='--', linewidth=2) 
-      ax.axvline(x= w*2 , color='red', linestyle='--', linewidth=2) 
-      plt.show()
+      #fig, ax = plt.subplots()
+      #ax.imshow(proximity_out)
+      #w = len(proximity_out[0]) / 3
+      #ax.axvline(x= w, color='red', linestyle='--', linewidth=2) 
+      #ax.axvline(x= w*2 , color='red', linestyle='--', linewidth=2) 
+      #plt.show()
       #cv2_imshow(proximity_out)
       
       initial_out_img = proximity_out.copy()
       #if self.thresh_m > np.percentile(proximity_out, 75):
       if np.std(initial_out_img) > self.thresh_m:
-        print('px reduced', 'std', np.std(initial_out_img))
+        #print('px reduced', 'std', np.std(initial_out_img))
         new_px_dis = proximity_out[proximity_out > np.percentile(proximity_out, 70)] # cut the pixels distribution
         p1 = np.percentile(new_px_dis, 25)  # First quartile (Q1)
         p2 = np.percentile(new_px_dis, 65)  # Second quartile (Q2 or median)
         p3 = np.percentile(new_px_dis, 99.9)  # Third quartile (Q3)
       
       else:
-        print('px mantained', 'std', np.std(initial_out_img))
+        #print('px mantained', 'std', np.std(initial_out_img))
         p1 = np.percentile(proximity_out, 25)  # First quartile (Q1)
         p2 = np.percentile(proximity_out, 65)  # Second quartile (Q2 or median)
         p3 = np.percentile(proximity_out, 99.9)  # Third quartile (Q3)
 
-      print('Percentiles: ', p1, p2, p3)
+      #print('Percentiles: ', p1, p2, p3)
       proximity_out[proximity_out <= p2] = p1 #far
       proximity_out[(proximity_out > p2) & (proximity_out <= p3)] = p2 #near
       proximity_out[proximity_out > p3] = p3 # very near
@@ -466,26 +466,26 @@ class Midas:
       # array with the new values
       proximity_out = (proximity_out-min(unique_out))*(255/(max(unique_out)-min(unique_out)))
       
-      fig, ax = plt.subplots()
-      ax.imshow(proximity_out)
-      w = len(proximity_out[0]) / 3
-      ax.axvline(x= w, color='red', linestyle='--', linewidth=2) 
-      ax.axvline(x= w*2 , color='red', linestyle='--', linewidth=2) 
-      plt.show()
+      #fig, ax = plt.subplots()
+      #ax.imshow(proximity_out)
+      #w = len(proximity_out[0]) / 3
+      #ax.axvline(x= w, color='red', linestyle='--', linewidth=2) 
+      #ax.axvline(x= w*2 , color='red', linestyle='--', linewidth=2) 
+      #plt.show()
 
 
 
       initial_out_img = proximity_out.copy()
       #if self.thresh_m > np.percentile(proximity_out, 75):
       if np.std(initial_out_img) > self.thresh_m:
-        print('px reduced', 'std', np.std(initial_out_img))
+        #print('px reduced', 'std', np.std(initial_out_img))
         new_px_dis = proximity_out[proximity_out > np.percentile(proximity_out, 70)] # cut the pixels distribution
         p1 = np.percentile(new_px_dis, 25)  # First quartile (Q1)
         p2 = np.percentile(new_px_dis, 65)  # Second quartile (Q2 or median)
         p3 = np.percentile(new_px_dis, 99.9)  # Third quartile (Q3)
       
       else:
-        print('px mantained', 'std', np.std(initial_out_img))
+        #print('px mantained', 'std', np.std(initial_out_img))
         p1 = np.percentile(proximity_out, 25)  # First quartile (Q1)
         p2 = np.percentile(proximity_out, 65)  # Second quartile (Q2 or median)
         p3 = np.percentile(proximity_out, 99.9)  # Third quartile (Q3)
@@ -511,7 +511,7 @@ class Midas:
       cap = cv2.VideoCapture(videoPath)
 
       if (cap.isOpened()==False):
-          print("Error opening video stream or file")
+          #print("Error opening video stream or file")
           return
 
       (success, image) = cap.read() #in case cv2.VideoCaptur(0) here cam is opened
@@ -582,7 +582,7 @@ class MobileCam(Midas, Detector):
     segment_vrf[depth_array != depth_thresh[-3]] = 0 # Very relevant far
     
     #test visualization
-    print('unique depthmap:', np.unique(depth_thresh), '\nnear and very relevant')
+    #print('unique depthmap:', np.unique(depth_thresh), '\nnear and very relevant')
     seg_out = segment_vrn.copy()
     seg_out[seg_out != 0] = 150
     cv2_imshow(np.rot90(seg_out, 2))
@@ -633,7 +633,7 @@ class MobileCam(Midas, Detector):
     vr_n = [(pred_class[pred_id.index(i)], id_dict_pos[i]) for i in np.unique(segment_vrn) if i != 0]
     r_n = [(pred_class[pred_id.index(i)], id_dict_pos[i]) for i in np.unique(segment_rn) if i != 0]
     vrf = [pred_class[pred_id.index(i)]for i in np.unique(segment_vrf) if i != 0]
-    print('vr_vn:', vr_vn, '\nr_vn:', r_vn, '\nvr_n:', vr_n, '\nr_n:', r_n)
+    #print('vr_vn:', vr_vn, '\nr_vn:', r_vn, '\nvr_n:', vr_n, '\nr_n:', r_n)
     eval_dict = {"vrvn": [[x[0] for x in vr_vn]], "vrn": [[x[0] for x in vr_n]], "vrf": [vrf]} 
 
     text = []
@@ -729,11 +729,11 @@ class MobileCam(Midas, Detector):
 
       #print(pred_class)
       segment_arr = segment_arr.numpy()
-      segment_vrvn, segment_vrn, segment_rvn, segment_rn, segment_vrf = segment_arr.copy(), segment_arr.copy(), segment_arr.copy(), segment_arr.copy(), segment_arr.copy()
+      segment_vrvn, segment_vrn, segment_vrf = segment_arr.copy(), segment_arr.copy(), segment_arr.copy()
       segment_vrvn[hierarchy_arr != 1] = 0 # very relevant very near
-      segment_rvn[hierarchy_arr != 2] = 0 # relevant very near
+      #segment_rvn[hierarchy_arr != 2] = 0 # relevant very near
       segment_vrn[hierarchy_arr != 1] = 0 # very relevant near
-      segment_rn[hierarchy_arr != 2] = 0 # relevant near
+      #segment_rn[hierarchy_arr != 2] = 0 # relevant near
       segment_vrf[hierarchy_arr != 1] = 0 # very relevant far
 
       # ============================ hierarchy for depth ====================================
@@ -741,9 +741,9 @@ class MobileCam(Midas, Detector):
       depth_array = depth_array.T
       depth_thresh = np.unique(depth_array)
       segment_vrvn[depth_array != depth_thresh[-1]] = 0 # Very Relevant and very near --
-      segment_rvn[depth_array != depth_thresh[-1]] = 0 # Relevant and very near
+      #segment_rvn[depth_array != depth_thresh[-1]] = 0 # Relevant and very near
       segment_vrn[depth_array != depth_thresh[-2]] = 0 # Very Relevant and near --
-      segment_rn[depth_array != depth_thresh[-2]] = 0 # Relevant and near
+      #segment_rn[depth_array != depth_thresh[-2]] = 0 # Relevant and near
       segment_vrf[depth_array != depth_thresh[-3]] = 0 # Very Relevant and far --  
 
       #return segment_arr, hierarchy_arr, SegmentInfo, depth_array
@@ -793,7 +793,7 @@ class MobileCam(Midas, Detector):
       # get the amount the amount of pixels they correspond for each quadrant 
       # INVERTED TO THE IMAGES
       h = len(segment_arr_cut) // 3 
-      w = len(segment_arr_cut[0]) # // 3
+      #w = len(segment_arr_cut[0]) # // 3
 
       # devided into grid of 3 x 1
       quad = [segment_arr_cut[:h, :], segment_arr_cut[h:2*h, :], segment_arr_cut[2*h:, :]] 
@@ -855,13 +855,18 @@ class MobileCam(Midas, Detector):
             text.append(' '.join(de))
             
       if len(text)==0:
-        text ='  Sin objetos relevantes  '
+        text ='  sin texto  '
+        tts = gTTS(text=text, lang='es') 
+        tts.save('1.wav') 
+        sound_file = '1.wav'
+        return Audio(sound_file, autoplay=False)
+      
       else:
         text = ', a'.join(text)
       
-      print(text)
+        #print(text)
 
-      tts = gTTS(text=text, lang='es') 
-      tts.save('1.wav') 
-      sound_file = '1.wav'
-      return Audio(sound_file, autoplay=True)
+        tts = gTTS(text=text, lang='es') 
+        tts.save('1.wav') 
+        sound_file = '1.wav'
+        return Audio(sound_file, autoplay=True)
