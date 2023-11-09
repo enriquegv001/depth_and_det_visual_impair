@@ -76,10 +76,6 @@ class Detector:
         else: # panoptic segmentation predictions
             predictions, segmentInfo = self.predictor(image)["panoptic_seg"]
             metadata = MetadataCatalog.get(self.cfg.DATASETS.TRAIN[0])
-            #x = [print(x, len(x)) for x in predictions.cpu().numpy()[:10, :10].T] #identify its classes
-            #x = [print(x, len(x)) for x in predictions.cpu().numpy()[:, :10]]
-
-            segmentInfo_ = segmentInfo.copy() # save segmentInfo original
 
         #============================== Algorithm: hierarchy based on things =================================
             # set the class label and class heirarchy inside segmentInfo
@@ -437,7 +433,7 @@ class Midas:
 
   def onVideo_m(self, frame):
       # load image and apply transformers
-      start_time = time.time()
+      #start_time = time.time()
       img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
       #print('trans pross:' , self.trans_processing)
       input_batch = self.trans_processing(img).to(self.device)
@@ -481,13 +477,13 @@ class Midas:
         #print('px reduced', 'std', np.std(initial_out_img))
         new_px_dis = proximity_out[proximity_out > np.percentile(proximity_out, 70)] # cut the pixels distribution
         p1 = np.percentile(new_px_dis, 25)  # First quartile (Q1)
-        p2 = np.percentile(new_px_dis, 65)  # Second quartile (Q2 or median)
+        p2 = np.percentile(new_px_dis, 63)  # Second quartile (Q2 or median)
         p3 = np.percentile(new_px_dis, 99.9)  # Third quartile (Q3)
       
       else:
         #print('px mantained', 'std', np.std(initial_out_img))
         p1 = np.percentile(proximity_out, 25)  # First quartile (Q1)
-        p2 = np.percentile(proximity_out, 65)  # Second quartile (Q2 or median)
+        p2 = np.percentile(proximity_out, 63)  # Second quartile (Q2 or median)
         p3 = np.percentile(proximity_out, 99.9)  # Third quartile (Q3)
 
       proximity_out[proximity_out <= p2] = p1 #far
@@ -699,7 +695,7 @@ class MobileCam(Midas, Detector):
     label_html = 'Capturing...'
     # initialze bounding box to empty
     bbox = ''
-    count = 0
+    #count = 0
     #while True:
     js_reply = video_frame(label_html, bbox)
     if not js_reply:
@@ -716,6 +712,7 @@ class MobileCam(Midas, Detector):
       bbox_array = np.zeros([480,640,4], dtype=np.uint8)
 
       # ========================== hierarchy for obj detection ====================================
+      startA = time.time()
       segment_arr, hierarchy_arr, SegmentInfo, bbox_array[:,:,3] = self.onVideo_d(frame)
       segment_arr, hierarchy_arr = segment_arr.T, hierarchy_arr.T
       pred_id = SegmentInfo['id']
@@ -731,19 +728,17 @@ class MobileCam(Midas, Detector):
       segment_arr = segment_arr.numpy()
       segment_vrvn, segment_vrn, segment_vrf = segment_arr.copy(), segment_arr.copy(), segment_arr.copy()
       segment_vrvn[hierarchy_arr != 1] = 0 # very relevant very near
-      #segment_rvn[hierarchy_arr != 2] = 0 # relevant very near
       segment_vrn[hierarchy_arr != 1] = 0 # very relevant near
-      #segment_rn[hierarchy_arr != 2] = 0 # relevant near
       segment_vrf[hierarchy_arr != 1] = 0 # very relevant far
-
-      # ============================ hierarchy for depth ====================================
+      print('Hierarchy time: ', time.time()-startA)
+      
+      # ============================ Proximinity from depth ====================================
+      startB = time.time()
       depth_array = self.onVideo_m(frame)
       depth_array = depth_array.T
       depth_thresh = np.unique(depth_array)
       segment_vrvn[depth_array != depth_thresh[-1]] = 0 # Very Relevant and very near --
-      #segment_rvn[depth_array != depth_thresh[-1]] = 0 # Relevant and very near
       segment_vrn[depth_array != depth_thresh[-2]] = 0 # Very Relevant and near --
-      #segment_rn[depth_array != depth_thresh[-2]] = 0 # Relevant and near
       segment_vrf[depth_array != depth_thresh[-3]] = 0 # Very Relevant and far --  
 
       #return segment_arr, hierarchy_arr, SegmentInfo, depth_array
@@ -754,17 +749,11 @@ class MobileCam(Midas, Detector):
       segment_veryrel[hierarchy_arr != 1] = 0 
       # very near, near, far
       segment_vrvn, segment_vrn, segment_vrf = segment_veryrel.copy(), segment_veryrel.copy(), segment_veryrel.copy()
-
-      # ============================ hierarchy for depth ====================================
-      depth_thresh = np.unique(depth_array)
-      segment_vrvn[depth_array != depth_thresh[-1]] = 0 # Very Relevant and very near --
-      segment_vrn[depth_array != depth_thresh[-2]] = 0 # Very Relevant and near --
-      segment_vrf[depth_array != depth_thresh[-3]] = 0 # Very Relevant and far --  
-
+      
       # ------------------- hierarchy for depth, using object percentage ---------------------
       # For each object detect the number of pixels that correspond to each object
-      segment_relevant = segment_arr.copy()
-      segment_relevant[hierarchy_arr != 1] = 0
+      #segment_relevant = segment_arr.copy()
+      #segment_relevant[hierarchy_arr != 1] = 0
 
 
       # To the segment_relevant matrix get the layers for each object
@@ -781,8 +770,10 @@ class MobileCam(Midas, Detector):
       for i in unique_f:
         if i != 0:
           print('f', pred_class[pred_id.index(i)])
+      print('Proximinty time: ', time.time()-startB)
 
-      # Predict the poistion for each object / stuff detected 
+      # --------- Predict the poistion for each object / stuff detected -------------
+      startC = time.time()
       h_mod = len(segment_arr) % 3
       w_mod = len(segment_arr[0]) % 3
       if h_mod != 0:
@@ -802,8 +793,9 @@ class MobileCam(Midas, Detector):
 
       # dict for near obj
       pred_depth_pos = {}
+      print('Proximinty time: ', time.time()-startC)
 
-      # Determine the highest frequency for each class
+      # --------------- Highest frequency pixels per layer------------------
       # iteration on the classes and in case they are in the unique values. Then get the unique counts
       for c in unique_n:
         if c != 0:
@@ -820,7 +812,8 @@ class MobileCam(Midas, Detector):
           if n / (vn + n + f) >= 0.40:
             #get the position
             pred_depth_pos[c] = quad_dict[np.argmax([len(q[q == c]) for q in quad])] 
-
+        
+        # --------------- Text gen and speech ------------------
         #change output text to prural
         def count_obj(pos_list):
           unique_w, counts_w = np.unique(pos_list, return_counts = True)
