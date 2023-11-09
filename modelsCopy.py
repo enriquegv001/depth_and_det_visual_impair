@@ -797,6 +797,7 @@ class MobileCam(Midas, Detector):
 
       # --------------- Highest frequency pixels per layer------------------
       # iteration on the classes and in case they are in the unique values. Then get the unique counts
+      startD = time.time()
       for c in unique_n:
         if c != 0:
           vn, n, f = 0,0,0
@@ -812,8 +813,10 @@ class MobileCam(Midas, Detector):
           if n / (vn + n + f) >= 0.40:
             #get the position
             pred_depth_pos[c] = quad_dict[np.argmax([len(q[q == c]) for q in quad])] 
+        print('Frequency of pixels', time.time()-startD)
         
-        # --------------- Text gen and speech ------------------
+        # =============== Text gen and speech =========================
+        startE = time.time()
         #change output text to prural
         def count_obj(pos_list):
           unique_w, counts_w = np.unique(pos_list, return_counts = True)
@@ -846,7 +849,8 @@ class MobileCam(Midas, Detector):
             text.append(' '.join(fr))
           if len(de) > 1:
             text.append(' '.join(de))
-            
+      
+      print('Text gen', time.time()-startE)
       if len(text)==0:
         text ='  sin texto  '
         tts = gTTS(text=text, lang='es') 
@@ -855,11 +859,10 @@ class MobileCam(Midas, Detector):
         return Audio(sound_file, autoplay=False)
       
       else:
-        text = ', a'.join(text)
-      
+        text = ', a'.join(text)  
         #print(text)
-
         tts = gTTS(text=text, lang='es') 
         tts.save('1.wav') 
         sound_file = '1.wav'
         return Audio(sound_file, autoplay=True)
+      
