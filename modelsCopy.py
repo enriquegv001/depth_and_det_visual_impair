@@ -76,6 +76,10 @@ class Detector:
         else: # panoptic segmentation predictions
             predictions, segmentInfo = self.predictor(image)["panoptic_seg"]
             metadata = MetadataCatalog.get(self.cfg.DATASETS.TRAIN[0])
+            #x = [print(x, len(x)) for x in predictions.cpu().numpy()[:10, :10].T] #identify its classes
+            #x = [print(x, len(x)) for x in predictions.cpu().numpy()[:, :10]]
+
+            segmentInfo_ = segmentInfo.copy() # save segmentInfo original
 
         #============================== Algorithm: hierarchy based on things =================================
             # set the class label and class heirarchy inside segmentInfo
@@ -433,7 +437,7 @@ class Midas:
 
   def onVideo_m(self, frame):
       # load image and apply transformers
-      #start_time = time.time()
+      start_time = time.time()
       img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
       #print('trans pross:' , self.trans_processing)
       input_batch = self.trans_processing(img).to(self.device)
@@ -477,13 +481,13 @@ class Midas:
         #print('px reduced', 'std', np.std(initial_out_img))
         new_px_dis = proximity_out[proximity_out > np.percentile(proximity_out, 70)] # cut the pixels distribution
         p1 = np.percentile(new_px_dis, 25)  # First quartile (Q1)
-        p2 = np.percentile(new_px_dis, 63)  # Second quartile (Q2 or median)
+        p2 = np.percentile(new_px_dis, 65)  # Second quartile (Q2 or median)
         p3 = np.percentile(new_px_dis, 99.9)  # Third quartile (Q3)
       
       else:
         #print('px mantained', 'std', np.std(initial_out_img))
         p1 = np.percentile(proximity_out, 25)  # First quartile (Q1)
-        p2 = np.percentile(proximity_out, 63)  # Second quartile (Q2 or median)
+        p2 = np.percentile(proximity_out, 65)  # Second quartile (Q2 or median)
         p3 = np.percentile(proximity_out, 99.9)  # Third quartile (Q3)
 
       proximity_out[proximity_out <= p2] = p1 #far
@@ -695,7 +699,7 @@ class MobileCam(Midas, Detector):
     label_html = 'Capturing...'
     # initialze bounding box to empty
     bbox = ''
-    #count = 0
+    count = 0
     #while True:
     js_reply = video_frame(label_html, bbox)
     if not js_reply:
@@ -712,10 +716,7 @@ class MobileCam(Midas, Detector):
       bbox_array = np.zeros([480,640,4], dtype=np.uint8)
 
       # ========================== hierarchy for obj detection ====================================
-      startA = time.time()
       segment_arr, hierarchy_arr, SegmentInfo, bbox_array[:,:,3] = self.onVideo_d(frame)
-      print('Detectron2 model: ', time.time()-startA)
-      
       segment_arr, hierarchy_arr = segment_arr.T, hierarchy_arr.T
       pred_id = SegmentInfo['id']
       pred_class = SegmentInfo['class_label']
@@ -730,18 +731,19 @@ class MobileCam(Midas, Detector):
       segment_arr = segment_arr.numpy()
       segment_vrvn, segment_vrn, segment_vrf = segment_arr.copy(), segment_arr.copy(), segment_arr.copy()
       segment_vrvn[hierarchy_arr != 1] = 0 # very relevant very near
+      #segment_rvn[hierarchy_arr != 2] = 0 # relevant very near
       segment_vrn[hierarchy_arr != 1] = 0 # very relevant near
+      #segment_rn[hierarchy_arr != 2] = 0 # relevant near
       segment_vrf[hierarchy_arr != 1] = 0 # very relevant far
-      print('Hierarchy time: ', time.time()-startA)
-      
-      # ============================ Proximinity from depth ====================================
-      startB = time.time()
+
+      # ============================ hierarchy for depth ====================================
       depth_array = self.onVideo_m(frame)
-      print('Midas model: ', time.time()-startB)
       depth_array = depth_array.T
       depth_thresh = np.unique(depth_array)
       segment_vrvn[depth_array != depth_thresh[-1]] = 0 # Very Relevant and very near --
+      #segment_rvn[depth_array != depth_thresh[-1]] = 0 # Relevant and very near
       segment_vrn[depth_array != depth_thresh[-2]] = 0 # Very Relevant and near --
+      #segment_rn[depth_array != depth_thresh[-2]] = 0 # Relevant and near
       segment_vrf[depth_array != depth_thresh[-3]] = 0 # Very Relevant and far --  
 
       #return segment_arr, hierarchy_arr, SegmentInfo, depth_array
@@ -752,18 +754,24 @@ class MobileCam(Midas, Detector):
       segment_veryrel[hierarchy_arr != 1] = 0 
       # very near, near, far
       segment_vrvn, segment_vrn, segment_vrf = segment_veryrel.copy(), segment_veryrel.copy(), segment_veryrel.copy()
-      
+
+      # ============================ hierarchy for depth ====================================
+      depth_thresh = np.unique(depth_array)
+      segment_vrvn[depth_array != depth_thresh[-1]] = 0 # Very Relevant and very near --
+      segment_vrn[depth_array != depth_thresh[-2]] = 0 # Very Relevant and near --
+      segment_vrf[depth_array != depth_thresh[-3]] = 0 # Very Relevant and far --  
+
       # ------------------- hierarchy for depth, using object percentage ---------------------
       # For each object detect the number of pixels that correspond to each object
-      #segment_relevant = segment_arr.copy()
-      #segment_relevant[hierarchy_arr != 1] = 0
+      segment_relevant = segment_arr.copy()
+      segment_relevant[hierarchy_arr != 1] = 0
 
 
       # To the segment_relevant matrix get the layers for each object
       # Do a for loop for the class in each layer and count the pixels that each layer matches just very relevant classes
-      unique_vn, counts_vn = np.unique(segment_vrvn, return_counts = True)
-      unique_n, counts_n = np.unique(segment_vrn, return_counts = True)
-      unique_f, counts_f = np.unique(segment_vrf, return_counts = True)
+      unique_vn, counts_vn = np.unique(segment_vrvn, return_counts = True)  
+      unique_n, counts_n = np.unique(segment_vrn, return_counts = True)  
+      unique_f, counts_f = np.unique(segment_vrf, return_counts = True)  
       for i in unique_vn:
         if i != 0:
           print('vn', pred_class[pred_id.index(i)])
@@ -773,10 +781,8 @@ class MobileCam(Midas, Detector):
       for i in unique_f:
         if i != 0:
           print('f', pred_class[pred_id.index(i)])
-      print('Proximinty time: ', time.time()-startB)
 
-      # --------- Predict the poistion for each object / stuff detected -------------
-      startC = time.time()
+      # Predict the poistion for each object / stuff detected 
       h_mod = len(segment_arr) % 3
       w_mod = len(segment_arr[0]) % 3
       if h_mod != 0:
@@ -796,11 +802,9 @@ class MobileCam(Midas, Detector):
 
       # dict for near obj
       pred_depth_pos = {}
-      print('Proximinty position: ', time.time()-startC)
 
-      # --------------- Highest frequency pixels per layer------------------
+      # Determine the highest frequency for each class
       # iteration on the classes and in case they are in the unique values. Then get the unique counts
-      startD = time.time()
       for c in unique_n:
         if c != 0:
           vn, n, f = 0,0,0
@@ -816,56 +820,53 @@ class MobileCam(Midas, Detector):
           if n / (vn + n + f) >= 0.40:
             #get the position
             pred_depth_pos[c] = quad_dict[np.argmax([len(q[q == c]) for q in quad])] 
-      print('Frequency of pixels', time.time()-startD)
-        
-      # =============== Text gen and speech =========================
-      startE = time.time()
-      #change output text to prural
-      def count_obj(pos_list):
-        unique_w, counts_w = np.unique(pos_list, return_counts = True)
-        list_out = unique_w.tolist().copy()
-        for word, count in zip(unique_w, counts_w):
-          if count > 1:
-            list_out.remove(word)
-            list_out.append(f"{count} {word[:-1]}s")
-        return list_out
 
-      text = []
-      if len(pred_depth_pos) > 0:
-        text.append(' ')
-        iz, fr, de = [' su izquierda '], ['l frente '], [' su derecha ']
-        for p in pred_depth_pos:
-          pred_lab = pred_class[pred_id.index(p)]
-          pred_pos = pred_depth_pos[p]
-          if pred_pos == 'iz':                             
-            iz.append(pred_lab + ' ')
-          elif pred_pos == 'fr':                 
-            fr.append(pred_lab + ' ')
-          elif pred_pos == 'de':
-              de.append(pred_lab + ' ')
+        #change output text to prural
+        def count_obj(pos_list):
+          unique_w, counts_w = np.unique(pos_list, return_counts = True)
+          list_out = unique_w.tolist().copy()
+          for word, count in zip(unique_w, counts_w):
+            if count > 1:
+              list_out.remove(word)
+              list_out.append(f"{count} {word[:-1]}s")
+          return list_out
 
-        iz, fr, de = count_obj(iz), count_obj(fr), count_obj(de)
+        text = []
+        if len(pred_depth_pos) > 0:
+          text.append(' ')
+          iz, fr, de = [' su izquierda '], ['l frente '], [' su derecha ']
+          for p in pred_depth_pos:
+            pred_lab = pred_class[pred_id.index(p)]
+            pred_pos = pred_depth_pos[p]
+            if pred_pos == 'iz':                             
+              iz.append(pred_lab + ' ')
+            elif pred_pos == 'fr':                 
+              fr.append(pred_lab + ' ')
+            elif pred_pos == 'de':
+                de.append(pred_lab + ' ')
 
-        if len(iz) > 1:
-          text.append(' '.join(iz))
-        if len(fr) > 1:
-          text.append(' '.join(fr))
-        if len(de) > 1:
-          text.append(' '.join(de))
-    
-    print('Text gen', time.time()-startE)
-    if len(text)==0:
-      text ='  sin texto  '
-      tts = gTTS(text=text, lang='es') 
-      tts.save('1.wav') 
-      sound_file = '1.wav'
-      return Audio(sound_file, autoplay=False)
-    
-    else:
-      text = ', a'.join(text)  
-      #print(text)
-      tts = gTTS(text=text, lang='es') 
-      tts.save('1.wav') 
-      sound_file = '1.wav'
-      return Audio(sound_file, autoplay=True)
-    
+          iz, fr, de = count_obj(iz), count_obj(fr), count_obj(de)
+
+          if len(iz) > 1:
+            text.append(' '.join(iz))
+          if len(fr) > 1:
+            text.append(' '.join(fr))
+          if len(de) > 1:
+            text.append(' '.join(de))
+            
+      if len(text)==0:
+        text ='  sin texto  '
+        tts = gTTS(text=text, lang='es') 
+        tts.save('1.wav') 
+        sound_file = '1.wav'
+        return Audio(sound_file, autoplay=False)
+      
+      else:
+        text = ', a'.join(text)
+      
+        #print(text)
+
+        tts = gTTS(text=text, lang='es') 
+        tts.save('1.wav') 
+        sound_file = '1.wav'
+        return Audio(sound_file, autoplay=True)
