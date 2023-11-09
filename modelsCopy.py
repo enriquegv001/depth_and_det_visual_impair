@@ -83,7 +83,7 @@ class Detector:
 
         #============================== Algorithm: hierarchy based on things =================================
             # set the class label and class heirarchy inside segmentInfo
-            stuff_hierarchy = {'things': 1, 'banner': 1, 'blanket': 3, 'bridge': 1, 'cardboard': 1, 'counter': 1, 'curtain': 2, 'door-stuff': 1, 'floor-wood': 2, 'flower': 3, 'fruit': 2, 'gravel': 3, 'house': 3, 'light': 3, 'mirror-stuff': 1, 'net': 2, 'pillow': 3, 'platform': 1, 'playingfield': 3, 'railroad': 1, 'river': 1, 'road': 1, 'roof': 3, 'sand': 3, 'sea': 3, 'shelf': 2, 'snow': 1, 'stairs': 1, 'tent': 1, 'towel': 2, 'wall-brick': 1, 'wall-stone': 1, 'wall-tile': 1, 'wall-wood': 1, 'water': 1, 'window-blind': 3, 'window': 1, 'tree': 1, 'fence': 1, 'ceiling': 3, 'sky': 3, 'cabinet': 1, 'table': 1, 'floor': 3, 'pavement': 3, 'mountain': 3, 'grass': 3, 'dirt': 3, 'paper': 2, 'food': 2, 'building': 3, 'rock': 1, 'wall': 1, 'rug': 2}
+            stuff_hierarchy = {'things': 1, 'banner': 1, 'blanket': 3, 'bridge': 1, 'cardboard': 1, 'counter': 1, 'curtain': 2, 'door-stuff': 1, 'floor-wood': 2, 'flower': 3, 'fruit': 2, 'gravel': 3, 'house': 3, 'light': 3, 'mirror-stuff': 1, 'net': 2, 'pillow': 3, 'platform': 1, 'playingfield': 3, 'railroad': 1, 'river': 1, 'road': 1, 'roof': 3, 'sand': 3, 'sea': 3, 'shelf': 1, 'snow': 1, 'stairs': 1, 'tent': 1, 'towel': 2, 'wall-brick': 1, 'wall-stone': 1, 'wall-tile': 1, 'wall-wood': 1, 'water': 1, 'window-blind': 3, 'window': 1, 'tree': 1, 'fence': 1, 'ceiling': 3, 'sky': 3, 'cabinet': 1, 'table': 1, 'floor': 3, 'pavement': 3, 'mountain': 3, 'grass': 3, 'dirt': 3, 'paper': 2, 'food': 2, 'building': 3, 'rock': 1, 'wall': 1, 'rug': 2}
             stuff_cat_id = {i: c for i, c in enumerate(metadata.stuff_classes)} # dict with index and classes
 
             thing_hierarchy = {'person': 1, 'bicycle': 1, 'car': 1, 'motorcycle':1, 'airplane':3, 'bus':1, 'train':1, 'truck':1, 'boat':3, 'traffic light':1, 'fire hydrant':1, 'stop sign':1, 'parking meter':1, 'bench':1, 'bird':3, 'cat':1, 'dog':1, 'horse':1, 'sheep':1, 'cow':1, 'elephant':1, 'bear':1, 'zebra':1, 'giraffe':1, 'backpack':1, 'umbrella':1, 'handbag':1, 'tie':3, 'suitcase':1, 'frisbee':1, 'skis':1, 'snowboard':1, 'sports ball':1, 'kite':3, 'baseball bat':1, 'baseball glove':1, 'skateboard':1, 'surfboard':3, 'tennis racket':1, 'bottle':2, 'wine glass':1, 'cup':1, 'fork':1, 'knife':1, 'spoon':2, 'bowl':3, 'banana':3, 'apple':3, 'sandwich':3, 'orange':3, 'broccoli':3, 'carrot':3, 'hot dog':3, 'pizza':3, 'donut':3, 'cake':3, 'chair':1, 'couch':1, 'potted plant':1, 'bed':1, 'dining table':1, 'toilet':1, 'tv':3, 'laptop':3, 'mouse':3, 'remote':3, 'keyboard':3, 'cell phone':3, 'microwave':3, 'oven':2, 'toaster':2, 'sink':2, 'refrigerator':1, 'book':3, 'clock':3, 'vase':2, 'scissors':2, 'teddy bear':3, 'hair drier':2, 'toothbrush':2}
@@ -389,17 +389,17 @@ class Midas:
       initial_out_img = proximity_out.copy()
       #if self.thresh_m > np.percentile(proximity_out, 75):
       if np.std(initial_out_img) > self.thresh_m:
-        print('pixels distribution reduced', 'std', np.std(initial_out_img))
-        new_px_dis = proximity_out[proximity_out > np.percentile(proximity_out, 30)] # cut the pixels distribution
-        p1 = np.percentile(new_px_dis, 1)  # First quartile (Q1)
-        p2 = np.percentile(new_px_dis, 2)  # Second quartile (Q2 or median)
-        p3 = np.percentile(new_px_dis, 30)  # Third quartile (Q3)
+        print('px reduced', 'std', np.std(initial_out_img))
+        new_px_dis = proximity_out[proximity_out > np.percentile(proximity_out, 70)] # cut the pixels distribution
+        p1 = np.percentile(new_px_dis, 25)  # First quartile (Q1)
+        p2 = np.percentile(new_px_dis, 65)  # Second quartile (Q2 or median)
+        p3 = np.percentile(new_px_dis, 99.9)  # Third quartile (Q3)
       
       else:
-        print('pixels distribution mantained', 'std', np.std(initial_out_img))
-        p1 = np.percentile(proximity_out, 1)  # First quartile (Q1)
-        p2 = np.percentile(proximity_out, 2)  # Second quartile (Q2 or median)
-        p3 = np.percentile(proximity_out, 30)  # Third quartile (Q3)
+        print('px mantained', 'std', np.std(initial_out_img))
+        p1 = np.percentile(proximity_out, 25)  # First quartile (Q1)
+        p2 = np.percentile(proximity_out, 65)  # Second quartile (Q2 or median)
+        p3 = np.percentile(proximity_out, 99.9)  # Third quartile (Q3)
 
       print('Percentiles: ', p1, p2, p3)
       proximity_out[proximity_out <= p2] = p1 #far
@@ -479,16 +479,16 @@ class Midas:
       #if self.thresh_m > np.percentile(proximity_out, 75):
       if np.std(initial_out_img) > self.thresh_m:
         print('px reduced', 'std', np.std(initial_out_img))
-        new_px_dis = proximity_out[proximity_out > np.percentile(proximity_out, 60)] # cut the pixels distribution
+        new_px_dis = proximity_out[proximity_out > np.percentile(proximity_out, 70)] # cut the pixels distribution
         p1 = np.percentile(new_px_dis, 25)  # First quartile (Q1)
         p2 = np.percentile(new_px_dis, 65)  # Second quartile (Q2 or median)
-        p3 = np.percentile(new_px_dis, 99)  # Third quartile (Q3)
+        p3 = np.percentile(new_px_dis, 99.9)  # Third quartile (Q3)
       
       else:
         print('px mantained', 'std', np.std(initial_out_img))
         p1 = np.percentile(proximity_out, 25)  # First quartile (Q1)
         p2 = np.percentile(proximity_out, 65)  # Second quartile (Q2 or median)
-        p3 = np.percentile(proximity_out, 99)  # Third quartile (Q3)
+        p3 = np.percentile(proximity_out, 99.9)  # Third quartile (Q3)
 
       proximity_out[proximity_out <= p2] = p1 #far
       proximity_out[(proximity_out > p2) & (proximity_out <= p3)] = p2 #near
@@ -817,18 +817,19 @@ class MobileCam(Midas, Detector):
 
           print(pred_class[pred_id.index(c)], n / (vn + n + f))
           # select just the objects in the middle with more pixels than percent percent liminit
-          if n / (vn + n + f) >= 0.30:
+          if n / (vn + n + f) >= 0.40:
             #get the position
             pred_depth_pos[c] = quad_dict[np.argmax([len(q[q == c]) for q in quad])] 
 
         #change output text to prural
-        def count_obj(pos_list): 
+        def count_obj(pos_list):
           unique_w, counts_w = np.unique(pos_list, return_counts = True)
-          rep_w = unique_w[np.where(counts_w > 1)]
-          for w in rep_w:
-            pos_list.remove(w)
-            pos_list.append(str(counts_w[unique_w.tolist().index(w)]) + ' ' + w + 's')
-          return pos_list
+          list_out = unique_w.tolist().copy()
+          for word, count in zip(unique_w, counts_w):
+            if count > 1:
+              list_out.remove(word)
+              list_out.append(f"{count} {word[:-1]}s")
+          return list_out
 
         text = []
         if len(pred_depth_pos) > 0:
@@ -857,6 +858,8 @@ class MobileCam(Midas, Detector):
         text ='  Sin objetos relevantes  '
       else:
         text = ', a'.join(text)
+      
+      print(text)
 
       tts = gTTS(text=text, lang='es') 
       tts.save('1.wav') 
