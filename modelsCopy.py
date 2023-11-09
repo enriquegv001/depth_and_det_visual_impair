@@ -846,12 +846,12 @@ class MobileCam(Midas, Detector):
 
           iz, fr, de = count_obj(iz), count_obj(fr), count_obj(de)
 
-        if len(iz) > 1:
-          text.append(' '.join(iz))
-        if len(fr) > 1:
-          text.append(' '.join(fr))
-        if len(de) > 1:
-          text.append(' '.join(de))
+          if len(iz) > 1:
+            text.append(' '.join(iz))
+          if len(fr) > 1:
+            text.append(' '.join(fr))
+          if len(de) > 1:
+            text.append(' '.join(de))
             
       if len(text)==0:
         text ='  Sin objetos relevantes  '
