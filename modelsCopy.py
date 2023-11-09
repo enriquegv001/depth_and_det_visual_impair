@@ -714,6 +714,8 @@ class MobileCam(Midas, Detector):
       # ========================== hierarchy for obj detection ====================================
       startA = time.time()
       segment_arr, hierarchy_arr, SegmentInfo, bbox_array[:,:,3] = self.onVideo_d(frame)
+      print('Detectron2 model: ', time.time()-startA)
+      
       segment_arr, hierarchy_arr = segment_arr.T, hierarchy_arr.T
       pred_id = SegmentInfo['id']
       pred_class = SegmentInfo['class_label']
@@ -735,6 +737,7 @@ class MobileCam(Midas, Detector):
       # ============================ Proximinity from depth ====================================
       startB = time.time()
       depth_array = self.onVideo_m(frame)
+      print('Midas model: ', time.time()-startB)
       depth_array = depth_array.T
       depth_thresh = np.unique(depth_array)
       segment_vrvn[depth_array != depth_thresh[-1]] = 0 # Very Relevant and very near --
@@ -793,7 +796,7 @@ class MobileCam(Midas, Detector):
 
       # dict for near obj
       pred_depth_pos = {}
-      print('Proximinty time: ', time.time()-startC)
+      print('Proximinty position: ', time.time()-startC)
 
       # --------------- Highest frequency pixels per layer------------------
       # iteration on the classes and in case they are in the unique values. Then get the unique counts
