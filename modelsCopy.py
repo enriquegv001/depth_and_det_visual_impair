@@ -481,13 +481,13 @@ class Midas:
         print('px reduced', 'std', np.std(initial_out_img))
         new_px_dis = proximity_out[proximity_out > np.percentile(proximity_out, 60)] # cut the pixels distribution
         p1 = np.percentile(new_px_dis, 25)  # First quartile (Q1)
-        p2 = np.percentile(new_px_dis, 50)  # Second quartile (Q2 or median)
+        p2 = np.percentile(new_px_dis, 65)  # Second quartile (Q2 or median)
         p3 = np.percentile(new_px_dis, 99)  # Third quartile (Q3)
       
       else:
         print('px mantained', 'std', np.std(initial_out_img))
         p1 = np.percentile(proximity_out, 25)  # First quartile (Q1)
-        p2 = np.percentile(proximity_out, 50)  # Second quartile (Q2 or median)
+        p2 = np.percentile(proximity_out, 65)  # Second quartile (Q2 or median)
         p3 = np.percentile(proximity_out, 99)  # Third quartile (Q3)
 
       proximity_out[proximity_out <= p2] = p1 #far
@@ -816,25 +816,36 @@ class MobileCam(Midas, Detector):
               f = counts_f[np.where(np.array(unique_f) == c)][0]
 
           print(pred_class[pred_id.index(c)], n / (vn + n + f))
-          # select just the objects in the middle with more than 75%
+          # select just the objects in the middle with more pixels than percent percent liminit
           if n / (vn + n + f) >= 0.30:
             #get the position
             pred_depth_pos[c] = quad_dict[np.argmax([len(q[q == c]) for q in quad])] 
 
+        #change output text to prural
+        def count_obj(pos_list): 
+          unique_w, counts_w = np.unique(pos_list, return_counts = True)
+          rep_w = unique_w[np.where(counts_w > 1)]
+          for w in rep_w:
+            pos_list.remove(w)
+            pos_list.append(str(counts_w[unique_w.tolist().index(w)]) + ' ' + w + 's')
+          return pos_list
 
-      text = []
-      if len(pred_depth_pos) > 0:
-        text.append(' ')
-        iz, fr, de = [' su izquierda '], ['l frente '], [' su derecha ']
-        for p in pred_depth_pos:
-          pred_lab = pred_class[pred_id.index(p)]
-          pred_pos = pred_depth_pos[p]
-          if pred_pos == 'iz':                             
-            iz.append(pred_lab + ' ')
-          elif pred_pos == 'fr':                 
-            fr.append(pred_lab + ' ')
-          elif pred_pos == 'de':
-              de.append(pred_lab + ' ')
+        text = []
+        if len(pred_depth_pos) > 0:
+          text.append(' ')
+          iz, fr, de = [' su izquierda '], ['l frente '], [' su derecha ']
+          for p in pred_depth_pos:
+            pred_lab = pred_class[pred_id.index(p)]
+            pred_pos = pred_depth_pos[p]
+            if pred_pos == 'iz':                             
+              iz.append(pred_lab + ' ')
+            elif pred_pos == 'fr':                 
+              fr.append(pred_lab + ' ')
+            elif pred_pos == 'de':
+                de.append(pred_lab + ' ')
+
+          iz, fr, de = count_obj(iz), count_obj(fr), count_obj(de)
+
         if len(iz) > 1:
           text.append(' '.join(iz))
         if len(fr) > 1:
