@@ -231,23 +231,11 @@ class Detector:
       #==================================== display for image  ======================================
 
       # display normal results
-      viz = Visualizer(frame[:, :, ::-1], MetadataCatalog.get(self.cfg.DATASETS.TRAIN[0]))
-      output = viz.draw_panoptic_seg_predictions(predictions.to("cpu"), segmentInfo_og)
-      #cv2_imshow(output.get_image()[:,:,::-1])
-      #plt.imshow(output)
-      #display out colab
-      # cv2.imshow("Result", output.get_image()[:,:,::-1])
-      # cv2.waitKey(0)
-
-      # display with filter per hierarchy
-      #output = viz.draw_panoptic_seg_predictions(pred_arr.to("cpu"), segmentInfo_)
-      #cv2_imshow(output.get_image()[:,:,::-1])
-
-
+      #viz = Visualizer(frame[:, :, ::-1], MetadataCatalog.get(self.cfg.DATASETS.TRAIN[0]))
+      #output = viz.draw_panoptic_seg_predictions(predictions.to("cpu"), segmentInfo_og)
       #cv2.imshow("Result", output.get_image()[:,:,::-1])
       #cv2_imshow(output.get_image()[:,:,::-1])
-      #cv2.waitKey(0)
-      return pred_arr, pred_hierarchy, Info_with_label, output.get_image()[:,:,::-1][:,:,1]
+      return pred_arr, pred_hierarchy, Info_with_label#, output.get_image()[:,:,::-1][:,:,1]
 
     def onRealTimeVideo(self, frame):
       image = frame
@@ -692,7 +680,7 @@ class MobileCam(Midas, Detector):
     # Non Relevant and far (3, 0)
 
 
-  def MultOut_RealTime(self, disp_pred=False):
+  def MultOut_RealTime(self): #disp_pred=False
     # start streaming video from webcam
     video_stream()
     # label for video
@@ -713,40 +701,33 @@ class MobileCam(Midas, Detector):
       # convert JS response to OpenCV Image
       frame = js_to_image(js_reply["img"])
       # create transparent overlay for bounding box
-      bbox_array = np.zeros([480,640,4], dtype=np.uint8)
+      #bbox_array = np.zeros([480,640,4], dtype=np.uint8)
 
+      #startA = time.time()
       # ========================== hierarchy for obj detection ====================================
-      segment_arr, hierarchy_arr, SegmentInfo, bbox_array[:,:,3] = self.onVideo_d(frame)
+      #segment_arr, hierarchy_arr, SegmentInfo, bbox_array[:,:,3] = self.onVideo_d(frame)  # this was useful when generating the visualization
+      segment_arr, hierarchy_arr, SegmentInfo = self.onVideo_d(frame)
+      
+      #print('detectron:', time.time() - startA)
       segment_arr, hierarchy_arr = segment_arr.T, hierarchy_arr.T
       pred_id = SegmentInfo['id']
       pred_class = SegmentInfo['class_label']
 
-      if disp_pred == True:
-        bbox_bytes = bbox_to_bytes(bbox_array)
-        bbox = bbox_bytes
-      else:
-        pass
+      #if disp_pred == True:
+      #  bbox_bytes = bbox_to_bytes(bbox_array)
+      #  bbox = bbox_bytes
+      #else:
+      #  pass
 
-      #print(pred_class)
       segment_arr = segment_arr.numpy()
-      segment_vrvn, segment_vrn, segment_vrf = segment_arr.copy(), segment_arr.copy(), segment_arr.copy()
-      segment_vrvn[hierarchy_arr != 1] = 0 # very relevant very near
-      #segment_rvn[hierarchy_arr != 2] = 0 # relevant very near
-      segment_vrn[hierarchy_arr != 1] = 0 # very relevant near
-      #segment_rn[hierarchy_arr != 2] = 0 # relevant near
-      segment_vrf[hierarchy_arr != 1] = 0 # very relevant far
-
+      #print('hierarchy', time.time() - startA)
+      
       # ============================ hierarchy for depth ====================================
+      #startB = time.time()
       depth_array = self.onVideo_m(frame)
+      #print('midas:', time.time() - startB)
       depth_array = depth_array.T
-      depth_thresh = np.unique(depth_array)
-      segment_vrvn[depth_array != depth_thresh[-1]] = 0 # Very Relevant and very near --
-      #segment_rvn[depth_array != depth_thresh[-1]] = 0 # Relevant and very near
-      segment_vrn[depth_array != depth_thresh[-2]] = 0 # Very Relevant and near --
-      #segment_rn[depth_array != depth_thresh[-2]] = 0 # Relevant and near
-      segment_vrf[depth_array != depth_thresh[-3]] = 0 # Very Relevant and far --  
 
-      #return segment_arr, hierarchy_arr, SegmentInfo, depth_array
       pred_id = SegmentInfo['id']
       pred_class = SegmentInfo['class_label']
 
@@ -754,34 +735,41 @@ class MobileCam(Midas, Detector):
       segment_veryrel[hierarchy_arr != 1] = 0 
       # very near, near, far
       segment_vrvn, segment_vrn, segment_vrf = segment_veryrel.copy(), segment_veryrel.copy(), segment_veryrel.copy()
-
+      
       # ============================ hierarchy for depth ====================================
       depth_thresh = np.unique(depth_array)
-      segment_vrvn[depth_array != depth_thresh[-1]] = 0 # Very Relevant and very near --
-      segment_vrn[depth_array != depth_thresh[-2]] = 0 # Very Relevant and near --
-      segment_vrf[depth_array != depth_thresh[-3]] = 0 # Very Relevant and far --  
+      #segment_vrvn[depth_array != depth_thresh[-1]] = 0 # Very Relevant and very near --
+      #segment_vrn[depth_array != depth_thresh[-2]] = 0 # Very Relevant and near --
+      #segment_vrf[depth_array != depth_thresh[-3]] = 0 # Very Relevant and far --  
+      
+      # mask filters (numpy operation optimized)
+      mask_vrvn = (depth_array == depth_thresh[-1])
+      mask_vrn = (depth_array == depth_thresh[-2])
+      mask_vrf = (depth_array == depth_thresh[-3])
+      segment_vrvn[~mask_vrvn] = 0
+      segment_vrn[~mask_vrn] = 0
+      segment_vrf[~mask_vrf] = 0
 
       # ------------------- hierarchy for depth, using object percentage ---------------------
-      # For each object detect the number of pixels that correspond to each object
-      segment_relevant = segment_arr.copy()
-      segment_relevant[hierarchy_arr != 1] = 0
-
-
+      # For each object detect the number of pixels that correspond to each 
       # To the segment_relevant matrix get the layers for each object
       # Do a for loop for the class in each layer and count the pixels that each layer matches just very relevant classes
       unique_vn, counts_vn = np.unique(segment_vrvn, return_counts = True)  
       unique_n, counts_n = np.unique(segment_vrn, return_counts = True)  
-      unique_f, counts_f = np.unique(segment_vrf, return_counts = True)  
-      for i in unique_vn:
-        if i != 0:
-          print('vn', pred_class[pred_id.index(i)])
-      for i in unique_n:
-        if i != 0:
-          print('n', pred_class[pred_id.index(i)])
-      for i in unique_f:
-        if i != 0:
-          print('f', pred_class[pred_id.index(i)])
+      unique_f, counts_f = np.unique(segment_vrf, return_counts = True)
+      #print('Proxminity', time.time() - startB)
 
+      #for i in unique_vn:
+      #  if i != 0:
+      #    print('vn', pred_class[pred_id.index(i)])
+      #for i in unique_n:
+      #  if i != 0:
+      #    print('n', pred_class[pred_id.index(i)])
+      #for i in unique_f:
+      #  if i != 0:
+      #    print('f', pred_class[pred_id.index(i)])
+
+      #startC = time.time()
       # Predict the poistion for each object / stuff detected 
       h_mod = len(segment_arr) % 3
       w_mod = len(segment_arr[0]) % 3
@@ -802,7 +790,9 @@ class MobileCam(Midas, Detector):
 
       # dict for near obj
       pred_depth_pos = {}
+      #print('Position', time.time() - startC)
 
+      #startD = time.time()
       # Determine the highest frequency for each class
       # iteration on the classes and in case they are in the unique values. Then get the unique counts
       for c in unique_n:
@@ -815,7 +805,7 @@ class MobileCam(Midas, Detector):
           if c in unique_f:
               f = counts_f[np.where(np.array(unique_f) == c)][0]
 
-          print(pred_class[pred_id.index(c)], n / (vn + n + f))
+          #print(pred_class[pred_id.index(c)], n / (vn + n + f))
           # select just the objects in the middle with more pixels than percent percent liminit
           if n / (vn + n + f) >= 0.40:
             #get the position
@@ -853,7 +843,8 @@ class MobileCam(Midas, Detector):
             text.append(' '.join(fr))
           if len(de) > 1:
             text.append(' '.join(de))
-            
+
+      #print('Text structure', time.time() - startD)      
       if len(text)==0:
         text ='  sin texto  '
         tts = gTTS(text=text, lang='es') 
