@@ -846,7 +846,7 @@ class MobileCam(Midas, Detector):
 
       #print('Text structure', time.time() - startD)      
       if len(text)==0:
-        text ='  sin texto  '
+        text =' Sin objetos relevantes '
         tts = gTTS(text=text, lang='es') 
         tts.save('1.wav') 
         sound_file = '1.wav'
