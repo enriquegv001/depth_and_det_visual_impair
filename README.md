@@ -11,7 +11,9 @@ Real time Deep Learning assistant for visually impaired people. The model archit
 
 ## Requirements
   Python >= 3.7
+  
   Run with GPU accelerator
+  
   DroidCam >= 6.5.2
   
 ## Installation
@@ -21,17 +23,13 @@ Real time Deep Learning assistant for visually impaired people. The model archit
 <!-- -->
 
 ## Usage
-1. Open on the same computer that you are
-2. See the [Colab Notebook](https://colab.research.google.com/drive/1OOsR4P0-gFLwfMYOtO4S5ga_LHOsWUo6?usp=sharing) to learn about basic usage.
-
+1. Connect DroidCam Client from a computer to your smartphone, by connect both devices to same WiFi > copy from smartphone to laptop the Decive IP and DroidCam Port > Start
+2. Run [Colab Notebook](https://colab.research.google.com/drive/1OOsR4P0-gFLwfMYOtO4S5ga_LHOsWUo6?usp=sharing) to learn about basic usage.
    
-2. Choose an option from the sidebar: "Predecir por candidato" (Predict by candidate), "Predecir por base de datos" (Predict from the database), or "Análisis descriptivo" (Descriptive analysis).
-   
-3. Follow the prompts and interact with the application to perform predictions and explore data.
-
 ## Credits
 
-- **Contact:** enriquegv001@gmail.com
+- Enrique García **Contact:** enriquegv001@gmail.com
+- Rafael Espinosa **Contact:** rafael.espinosa.castaneda@tec.mx
 
 <!--## License
 
