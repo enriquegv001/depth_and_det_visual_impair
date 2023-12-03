@@ -4,7 +4,7 @@
 ## Class Detector
 
 ### Attributes:
-´´´model_type´´´: Type of model used for detection (Object Detection, Instance Segmentation, Keypoint Detection, LVIS Segmentation, Panoptic Segmentation)
+´´´model_type´´´ : Type of model used for detection (Object Detection, Instance Segmentation, Keypoint Detection, LVIS Segmentation, Panoptic Segmentation)
 ´´´cfg´´´: Configuration settings for the model
 ´´´predictor´´´: Object for making predictions using the model
 ### Methods:
