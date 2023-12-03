@@ -1,13 +1,13 @@
-# Monocular Deep Learning Multimodal with Object Relevance Estimation for Real-Time Navigation of Visually Impaired individuals (MMOR)
-Real time Deep Learning assistant for visually impaired people. The model architecture fusion panoptic segmentation Panoptic FPN and monocular depth estimation Midas. The outcome is a video captured on a mobile device, generating spoken descriptions of user's environment to facilitate navigation, applying a heuristic algorithm for adapting prediction to user environment expectation. The model has been tested on members from Asociación Cultural y Recreativa para la Proyección del Invidente Puebla, A.C. (ACRIP) and result effective for user experience analysis.
+# MMOR Documentation
+
 
 ## Class Detector
 
-###Attributes:
+### Attributes:
 ´´´model_type´´´: Type of model used for detection (Object Detection, Instance Segmentation, Keypoint Detection, LVIS Segmentation, Panoptic Segmentation)
 ´´´cfg´´´: Configuration settings for the model
 ´´´predictor´´´: Object for making predictions using the model
-###Methods:
+### Methods:
 ´´´__init__(self, model_type="OD")´´´: Initializes the Detector object with a specified model type. Loads the model configuration and weights based on the model type.
 ´´´get_attributes(self)´´´: Returns the model type.
 ´´´onImage_d(self, imagePath)´´´: Performs detection on a single image. Depending on the model type, it uses the predictor to generate predictions and draws instance predictions or panoptic segmentation results on the image. It also performs hierarchical indexation for class labels.
