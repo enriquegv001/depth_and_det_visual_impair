@@ -17,7 +17,7 @@ Real time Deep Learning assistant for visually impaired people. The model archit
   DroidCam >= 6.5.2
   
 ## Installation
-1. Download DroidCam Client on [Widows](https://www.dev47apps.com/droidcam/windows/), (Mac or Linux)[https://www.dev47apps.com/droidcam/linux/].
+1. Download DroidCam Client on [Widows](https://www.dev47apps.com/droidcam/windows/), (Mac or Linux)https://www.dev47apps.com/droidcam/linux/].
 2. Download DroinCam - WebCam app on [your smartphone](https://www.dev47apps.com/)
    
 <!-- -->
@@ -28,8 +28,8 @@ Real time Deep Learning assistant for visually impaired people. The model archit
    
 ## Credits
 
-- Enrique García **Contact:** enriquegv001@gmail.com
-- Rafael Espinosa **Contact:** rafael.espinosa.castaneda@tec.mx
+- Enrique García enriquegv001@gmail.com
+- Rafael Espinosa rafael.espinosa.castaneda@tec.mx
 
 <!--## License
 
