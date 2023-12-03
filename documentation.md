@@ -18,64 +18,24 @@ For panoptic segmentation, it includes logic to process predictions, perform hie
 The code implements object detection and segmentation functionalities using the Detectron2 library, allowing detection on both images and video frames.
 
 ## Class Midas
+### Attributes
+```model_att (torch.nn.Module)``` Neural network model for depth prediction.
+```trans_processing (torchvision.transforms.Compose)``` Image transformation pipeline.
+```device``` (str) Device to run inference on ('cpu' or 'cuda').
+```thresh_m``` (float) Threshold value for determining depth changes.
 
-### Initialization
-
-```python
-class Midas:
-    def __init__(self, model_att, trans_processing, device, thresh_m):
-        """
-        Initializes the Midas class.
-
-        Args:
-            model_att (torch.nn.Module): Neural network model for depth prediction.
-            trans_processing (torchvision.transforms.Compose): Image transformation pipeline.
-            device (str): Device to run inference on ('cpu' or 'cuda').
-            thresh_m (float): Threshold value for determining depth changes.
-        """
-```
 ### Methods
-```python
-def onImage_m(self, imagePath):
-        """
-        Process an image and return the depth-aware representation.
-
-        Args:
-            imagePath (str): Path to the input image.
-
-        Returns:
-            tuple(numpy.ndarray, numpy.ndarray): Tuple containing:
-                - Depth-aware representation of the image.
-                - Initial representation of the image before thresholding.
-        """
-def onVideo_m(self, frame):
-    """
-    Process a video frame and return the depth-aware representation.
-
-    Args:
-        frame (numpy.ndarray): Video frame in BGR format.
-
-    Returns:
-        numpy.ndarray: Depth-aware representation of the video frame.
-    """
-```
+```__init__(self, model_att, trans_processing, device, thresh_m)``` Initialize the class Midas and assign the getter for each parameter.
+```onImage_m(self, imagePath)``` Process an image and return mask proximity.
+```onVideo_m(self, frame)``` Process a video frame and return the mask proximity. It paramater is ```frame``` (numpy.ndarray): Video frame in BGR format. An it returns a ```numpy.ndarray``` type.
 
 ## MobileCam Class
+Heredity class from parents Detector and Midas
 
-### Initialization
-
-```python
-class MobileCam(Midas, Detector):
-    def __init__(self, midas_model_att, trans_processing, device, model_type, thresh):
-        """
-        Initializes the MobileCam class.
-
-        Args:
-            midas_model_att (torch.nn.Module): Neural network model for depth prediction.
-            trans_processing (torchvision.transforms.Compose): Image transformation pipeline.
-            device (str): Device to run inference on ('cpu' or 'cuda').
-            model_type (str): Type of the detector model.
-            thresh (float): Threshold value for determining depth changes.
+### Methods
+```__init__(self, midas_model_att, trans_processing, device, model_type, thresh)```. Initialize class for fusion models and apply getter for parent classes.
+```MultOut_img(self, path)``` Processes an image and returns information about relevant objects, their positions, and depth-aware representation. It parameter is ```path``` (str) Path to the input image. Which returns, Audio file (with detected object positions), textual information about the objects, Initial representation of the image before thresholding and Evaluation dictionary containing object information.
+```MultOut_RealTime(self)``` Processes real-time video frames and returns information about relevant objects, their positions, and depth-aware representation. And returns ```Audio``` Audio file (with detected object positions).
         """
 
 
