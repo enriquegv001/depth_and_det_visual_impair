@@ -4,14 +4,14 @@
 ## Class Detector
 
 ### Attributes:
-´´´model_type´´´ : Type of model used for detection (Object Detection, Instance Segmentation, Keypoint Detection, LVIS Segmentation, Panoptic Segmentation)
-´´´cfg´´´: Configuration settings for the model
-´´´predictor´´´: Object for making predictions using the model
+```model_type``` Type of model used for detection (Object Detection, Instance Segmentation, Keypoint Detection, LVIS Segmentation, Panoptic Segmentation)
+```cfg``` Configuration settings for the model
+```predictor``` Object for making predictions using the model
 ### Methods:
-´´´__init__(self, model_type="OD")´´´: Initializes the Detector object with a specified model type. Loads the model configuration and weights based on the model type.
-´´´get_attributes(self)´´´: Returns the model type.
-´´´onImage_d(self, imagePath)´´´: Performs detection on a single image. Depending on the model type, it uses the predictor to generate predictions and draws instance predictions or panoptic segmentation results on the image. It also performs hierarchical indexation for class labels.
-´´´onVideo_d(self, frame)´´´: Performs detection on a video frame. Similar to ´´´onImage_d´´´, it generates predictions for the frame and applies hierarchical indexation for class labels.
+```__init__(self, model_type="OD")``` Initializes the Detector object with a specified model type. Loads the model configuration and weights based on the model type.
+```get_attributes(self)``` Returns the model type.
+```onImage_d(self, imagePath)``` Performs detection on a single image. Depending on the model type, it uses the predictor to generate predictions and draws instance predictions or panoptic segmentation results on the image. It also performs hierarchical indexation for class labels.
+```onVideo_d(self, frame)``` Performs detection on a video frame. Similar to ```onImage_d```, it generates predictions for the frame and applies hierarchical indexation for class labels.
 Note:
 The class loads different model configurations and weights based on the model_type provided during initialization.
 For panoptic segmentation, it includes logic to process predictions, perform hierarchical indexation, and translate class labels to Spanish.
