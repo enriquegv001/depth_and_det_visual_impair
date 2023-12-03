@@ -25,6 +25,7 @@ Real time Deep Learning assistant for visually impaired people. The model archit
 ## Usage
 1. Connect DroidCam Client from a computer to your smartphone, by connect both devices to same WiFi > copy from smartphone to laptop the Decive IP and DroidCam Port > Start
 2. Run [Colab Notebook](https://colab.research.google.com/drive/1OOsR4P0-gFLwfMYOtO4S5ga_LHOsWUo6?usp=sharing) to learn about basic usage.
+3. For more information check [documentation](https://github.com/enriquegv001/depth_and_det_visual_impair/blob/main/documentation.md)
    
 ## Credits
 
