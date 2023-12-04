@@ -1,5 +1,6 @@
 # Monocular Deep Learning Multimodal with Object Relevance Estimation for Real-Time Navigation of Visually Impaired individuals (MMOR)
 Real time Deep Learning assistant for visually impaired people. The model architecture fusion panoptic segmentation Panoptic FPN and monocular depth estimation Midas. The outcome is a video captured on a mobile device, generating spoken descriptions of user's environment to facilitate navigation, applying a heuristic algorithm for adapting prediction to user environment expectation. The model has been tested on members from Asociación Cultural y Recreativa para la Proyección del Invidente Puebla, A.C. (ACRIP) and result effective for user experience analysis.
+For more description check our [Article](https://github.com/enriquegv001/depth_and_det_visual_impair/blob/main/Machine_Learning_for_assist_visually_impaired_individuals_for_their_real_time_navigation_%20(1).pdf) or [Presentation](https://youtu.be/cJKnvHCNk48)
 
 ## Table of Contents
 - [Requirements](#Requirements)
