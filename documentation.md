@@ -18,6 +18,7 @@ The code implements object detection and segmentation functionalities using the 
 ```get_attributes(self)``` Returns the model type.
 
 ```onImage_d(self, imagePath)``` Performs detection on a single image. Depending on the model type, it applies a zoo model and with an heuristic algoritm it returns:
+        
         ```pred_arr``` a matrix with the metadata id corresponding to the class
         
         ```pred_hierarchy``` a matrix with the hierarchy value of the id
