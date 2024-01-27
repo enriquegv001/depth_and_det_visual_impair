@@ -537,7 +537,7 @@ class MobileCam(Midas, Detector):
               list_out.append(f"{count} {word[:-1]}s")
           return list_out
 
-        text = []
+        text = [] 
         if len(pred_depth_pos) > 0:
           text.append(' ')
           iz, fr, de = [' su izquierda '], ['l frente '], [' su derecha ']
