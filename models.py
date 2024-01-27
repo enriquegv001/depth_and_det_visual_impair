@@ -119,7 +119,9 @@ class Detector: # Class reference from https://github.com/evanshlom/detectron2-p
             Info_with_label['score'] = []
             for x in segmentInfo:
                 if x['isthing'] == True:
-                 Info_with_label[k].append(x[k])
+                 Info_with_label['score'].append(x['score'])
+                else:
+                 Info_with_label['score'].append(0)
 
             # Simple translation
             trans_dict_stuff = {'things': 'objetos', 'banner': 'letrero', 'blanket': 'sábana', 'bridge': 'puente', 'cardboard': 'cartón', 'counter': 'mostrador', 'curtain': 'cortina', 'door-stuff': 'puerta', 'floor-wood': 'piso', 'flower': 'flor', 'fruit': 'fruta', 'gravel': 'grava', 'house': 'casa', 'light': 'luz', 'mirror-stuff': 'espejo', 'net': 'red', 'pillow': 'almohada', 'platform': 'plataforma', 'playingfield': 'cancha de juego', 'railroad': 'ferrocarril', 'river': 'río', 'road': 'calle', 'roof': 'tejado', 'sand': 'arena', 'sea': 'oceano', 'shelf': 'repisas', 'snow': 'nieve', 'stairs': 'escalera', 'tent': 'tienda de campaña', 'towel': 'toalla', 'wall-brick': 'pared', 'wall-stone': 'pared', 'wall-tile': 'pared de teja', 'wall-wood': 'pared', 'water': 'agua', 'window-blind': 'persiana', 'window': 'ventana', 'tree': 'arbol', 'fence': 'valla', 'ceiling': 'techo', 'sky': 'cielo', 'cabinet': 'gabinete', 'table': 'mesa', 'floor': 'piso', 'pavement': 'pavimento', 'mountain': 'montaña', 'grass': 'pasto', 'dirt': 'tierra', 'paper': 'papel', 'food': 'comida', 'building': 'edificio', 'rock': 'roca', 'wall': 'pared', 'rug': 'alfombra'}
