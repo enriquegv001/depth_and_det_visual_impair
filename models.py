@@ -109,7 +109,7 @@ class Detector: # Class reference from https://github.com/evanshlom/detectron2-p
             
             pred_hierarchy = np.vectorize(hierarchy_window)(pred_arr.numpy())
 
-            # restructure info for stuff
+            # restructure info for stuff, and ds to hash table
             Info_with_label = {'id': [], 'isthing': [], 'category_id': [], 'class_label': [], 'class_hierarchy': []}
             for k in Info_with_label.keys():
               for x in segmentInfo:
