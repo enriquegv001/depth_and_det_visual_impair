@@ -17,7 +17,10 @@ The code implements object detection and segmentation functionalities using the 
 
 ```get_attributes(self)``` Returns the model type.
 
-```onImage_d(self, imagePath)``` Performs detection on a single image. Depending on the model type, it uses the predictor to generate predictions and draws instance predictions or panoptic segmentation results on the image. It also performs hierarchical indexation for class labels.
+```onImage_d(self, imagePath)``` Performs detection on a single image. Depending on the model type, it applies a zoo model and with an heuristic algoritm it returns:
+    - ```pred_arr``` a matrix with the metadata id corresponding to the class
+    - ```pred_hierarchy``` a matrix with the hierarchy value of the id
+    - ```Info_with_label``` 
 
 ```onVideo_d(self, frame)``` Performs detection on a video frame. Similar to ```onImage_d```, it generates predictions for the frame and applies hierarchical indexation for class labels.
 
