@@ -47,7 +47,7 @@ Heredity class from parents Detector and Midas. The MobileCam class combines fun
 ### Methods
 ```__init__(self, midas_model_att, trans_processing, device, model_type, thresh)```. Initialize class for fusion models and apply getter for parent classes.
 
-```MultOut_img(self, path)``` Processes an image and returns information about relevant objects, their positions, and depth-aware representation. It parameter is ```path``` (str) Path to the input image. Which returns, Audio file (with detected object positions), textual information about the objects, Initial representation of the image before thresholding and Evaluation dictionary containing object information.
+```MultOut_img(self, path)``` Processes an image and returns information about relevant objects, their positions, and depth-aware representation. It parameter is ```path``` (str) Path to the input image. Which returns, Audio file (with detected object positions), ```text``` textual information about the objects, ```initial_out_img``` Initial representation of the image before thresholding and ```SegmentInfo``` information from the image prediciton.
 
 ```MultOut_RealTime(self)``` Processes real-time video frames and returns information about relevant objects, their positions, and depth-aware representation. And returns ```Audio``` Audio file (with detected object positions).
 
