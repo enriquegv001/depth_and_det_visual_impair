@@ -340,105 +340,80 @@ class MobileCam(Midas, Detector):
     return self.get_attributes()
 
   def MultOut_img(self, path):
-    # hierarchy for stuff
-    segment_arr, hierarchy_arr, SegmentInfo = self.onImage_d(path)
-    segment_arr, hierarchy_arr = np.flip(segment_arr.numpy()), np.flip(hierarchy_arr)
+    # == object detection
+    segment_arr, hierarchy_arr, SegmentInfo = self.onImage_d(path) # predictions with Panoptic FPN
+    segment_arr, hierarchy_arr = np.flip(segment_arr.numpy()), np.flip(hierarchy_arr) # restructure matrix
     pred_id = SegmentInfo['id']
     pred_class = SegmentInfo['class_label']
+    segment_vrn = segment_arr.copy()
+    segment_vrn[hierarchy_arr != 1] = 0 # filter very relevant objects
 
-    #segment_arr = segment_arr.numpy()
-    segment_vrvn, segment_vrn, segment_rvn, segment_rn, segment_vrf = segment_arr.copy(), segment_arr.copy(), segment_arr.copy(), segment_arr.copy(), segment_arr.copy()
-    segment_vrvn[hierarchy_arr != 1] = 0 # very relevant very near
-    segment_rvn[hierarchy_arr != 2] = 0 # relevant very near
-    segment_vrn[hierarchy_arr != 1] = 0 # very relevant near
-    segment_rn[hierarchy_arr != 2] = 0 # relevant near
-    segment_vrf[hierarchy_arr != 1] = 0 # very relevant far
-
-    # ============================ hierarchy for depth ====================================
-    depth_array, initial_out_img = self.onImage_m(path)
+    # == depth estimation
+    depth_array, initial_out_img = self.onImage_m(path) # preictions with Midas (depth)
     #depth_array = depth_array.T
-    depth_array = np.rot90(depth_array, 2)
-    depth_thresh = np.unique(depth_array)
-    segment_vrvn[depth_array != depth_thresh[-1]] = 0 # Very Relevant and very near
-    segment_rvn[depth_array != depth_thresh[-1]] = 0 # Relevant and very near
-    segment_vrn[depth_array != depth_thresh[-2]] = 0 # Very Relevant and near
-    segment_rn[depth_array != depth_thresh[-2]] = 0 # Relevant and near
-    segment_vrf[depth_array != depth_thresh[-3]] = 0 # Very relevant far
+    depth_array = np.rot90(depth_array, 2) # restructure matrix
+    depth_thresh = np.unique(depth_array) # depth classes 
+    segment_vrn[depth_array != depth_thresh[-2]] = 0 # filter near objects
     
-    #test visualization
-    #print('unique depthmap:', np.unique(depth_thresh), '\nnear and very relevant')
+    # == display filtered objects
     seg_out = segment_vrn.copy()
     seg_out[seg_out != 0] = 150
     cv2_imshow(np.rot90(seg_out, 2))
-    #cv2_imshow(seg_out)  
-    # ============ Predict the poistion for each object / stuff detected ===================
-    h_mod = len(segment_arr) % 3
+     
+    # == detect poistion for each object
+    # cut the image boarder div 3
+    #h_mod = len(segment_arr) % 3
+    #if h_mod != 0:
+    #    segment_arr = segment_arr[:-h_mod, :]
     w_mod = len(segment_arr[0]) % 3
-    if h_mod != 0:
-        segment_arr = segment_arr[:-h_mod, :]
     if w_mod != 0:
         segment_arr = segment_arr[:, :-w_mod]
+    # devide into grid of 3 columns
+    w = len(segment_arr[0]) // 3 
+    quad = [segment_arr[:, :w], segment_arr[:, w:2*w], segment_arr[:, 2*w:]]
 
-    # get the amount the amount of pixels they correspond for each quadrant
-    h = len(segment_arr) # // 3
-    w = len(segment_arr[0]) // 3
-    
-    # devided into grid of 3 x 1
-    quad = [segment_arr[:, :w], segment_arr[:, w:2*w], segment_arr[:, 2*w:]] # quadrants""
-      
-    quad_dict = {0: 'iz', 1: 'fr', 2: 'de'}
-
-    # class unique class id
+    # store id and postion
+    grid_dict = {0: 'i', 1: 'c', 2: 'd'}
     id_dict_pos = {l:np.array([]) for l in pred_id}
-
-    for k in id_dict_pos:
+    SegmentInfo['pos'] = [] 
+    for k in id_dict_pos.keys():
         for q in quad:
             id_dict_pos[k] = np.append(len(q[q == k]), id_dict_pos[k])
-        #id_dict_pos[k] = id_dict_pos[k]/q_area
-        id_dict_pos[k] = quad_dict[np.where(id_dict_pos[k] == max(id_dict_pos[k]))[0][0]] #[::-1] index for quadrant
-    #print(id_dict_pos)
+        max_c = grid_dict[np.where(id_dict_pos[k] == max(id_dict_pos[k]))[0][0]] # col with max no of pixels
+        id_dict_pos[k] = max_c
+        SegmentInfo['pos'].append(max_c) # add info for later evaluation
 
-    # ========================================= display ==================================
-    vr_vn = [(pred_class[pred_id.index(i)], id_dict_pos[i]) for i in np.unique(segment_vrvn) if i != 0]
-    r_vn = [(pred_class[pred_id.index(i)], id_dict_pos[i]) for i in np.unique(segment_rvn) if i != 0]
-    vr_n = [(pred_class[pred_id.index(i)], id_dict_pos[i]) for i in np.unique(segment_vrn) if i != 0]
-    r_n = [(pred_class[pred_id.index(i)], id_dict_pos[i]) for i in np.unique(segment_rn) if i != 0]
-    vrf = [pred_class[pred_id.index(i)]for i in np.unique(segment_vrf) if i != 0]
-    #print('vr_vn:', vr_vn, '\nr_vn:', r_vn, '\nvr_n:', vr_n, '\nr_n:', r_n)
-    eval_dict = {"vrvn": [[x[0] for x in vr_vn]], "vrn": [[x[0] for x in vr_n]], "vrf": [vrf]} 
-
+    # == display   
+    vr_n = [(pred_class[pred_id.index(i)], id_dict_pos[i]) for i in np.unique(segment_vrn) if i != 0] # list of tuple with object label and position 
+    # create output text
     text = []
     vr_n_l = len(vr_n) > 0
     if vr_n_l:
       text.append(' ')
       iz, fr, de = [' su izquierda '], ['l frente '], [' su derecha ']
       for p in vr_n:
-        if p[1] == 'iz':                             
+        if p[1] == 'i':                             
           iz.append(p[0] + ' ')
-        elif p[1] == 'fr':                 
+        elif p[1] == 'c':                 
           fr.append(p[0] + ' ')
-        elif p[1] == 'de':
+        elif p[1] == 'd':
             de.append(p[0] + ' ')
       if len(iz) > 1:
         text.append(' '.join(iz))
       if len(fr) > 1:
         text.append(' '.join(fr))
       if len(de) > 1:
-        text.append(' '.join(de))
-        
-    if len(r_n) > 0:
-        pass
+        text.append(' '.join(de))  
     if len(text)==0:
       text =['  Sin objetos relevantes  ']
 
     # Text to speech automatic play audio
-    text_copy = text.copy()
     text = ', a'.join(text)
-    #print(text)
     tts = gTTS(text=text, lang='es') 
     tts.save('1.wav') 
-    sound_file = '1.wav'
-    return Audio(sound_file, autoplay=True), text, initial_out_img, eval_dict, text_copy, SegmentInfo
+    sound_file = '1.wav'  
+
+    return Audio(sound_file, autoplay=True), text, initial_out_img, SegmentInfo
 
   def MultOut_RealTime(self): #disp_pred=False
     # start streaming video from webcam
