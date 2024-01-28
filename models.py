@@ -141,9 +141,9 @@ class Detector: # Class reference from https://github.com/evanshlom/detectron2-p
         #==================================== display for image  ======================================
 
         # display normal results
-        viz = Visualizer(image[:, :, ::-1], MetadataCatalog.get(self.cfg.DATASETS.TRAIN[0]))
-        output = viz.draw_panoptic_seg_predictions(predictions.to("cpu"), segmentInfo)
-        cv2_imshow(output.get_image()[:,:,::-1])
+        #viz = Visualizer(image[:, :, ::-1], MetadataCatalog.get(self.cfg.DATASETS.TRAIN[0]))
+        #output = viz.draw_panoptic_seg_predictions(predictions.to("cpu"), segmentInfo)
+        #cv2_imshow(output.get_image()[:,:,::-1])
 
         return pred_arr, pred_hierarchy, Info_with_label
 
@@ -246,7 +246,7 @@ class Midas:
       # array with the new values
       proximity_out = (proximity_out-min(unique_out))*(255/(max(unique_out)-min(unique_out)))
         
-      print('\nnormalized to range(0,255):', min(np.unique(proximity_out)), max(np.unique(proximity_out)))
+      #print('\nnormalized to range(0,255):', min(np.unique(proximity_out)), max(np.unique(proximity_out)))
 
    
       initial_out_img = proximity_out.copy()
@@ -356,9 +356,9 @@ class MobileCam(Midas, Detector):
     segment_vrn[depth_array != depth_thresh[-2]] = 0 # filter near objects
     
     # == display filtered objects
-    seg_out = segment_vrn.copy()
-    seg_out[seg_out != 0] = 150
-    cv2_imshow(np.rot90(seg_out, 2))
+    #seg_out = segment_vrn.copy()
+    #seg_out[seg_out != 0] = 150
+    #cv2_imshow(np.rot90(seg_out, 2))
      
     # == detect poistion for each object
     # cut the image boarder div 3
