@@ -431,14 +431,14 @@ class MobileCam(Midas, Detector):
     if len(text)==0:
       text =['  Sin objetos relevantes  ']
 
-    # Text to speech automatic play
+    # Text to speech automatic play audio
     text_copy = text.copy()
     text = ', a'.join(text)
     #print(text)
     tts = gTTS(text=text, lang='es') 
     tts.save('1.wav') 
     sound_file = '1.wav'
-    return Audio(sound_file, autoplay=True), text, initial_out_img, eval_dict, text_copy()
+    return Audio(sound_file, autoplay=True), text, initial_out_img, eval_dict, text_copy() 
 
   def MultOut_RealTime(self): #disp_pred=False
     # start streaming video from webcam
