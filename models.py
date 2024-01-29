@@ -383,8 +383,18 @@ class MobileCam(Midas, Detector):
         id_dict_pos[k] = max_c
         SegmentInfo['pos'].append(max_c) # add info for later evaluation
 
-    # == display   
-    vr_n = [(pred_class[pred_id.index(i)], id_dict_pos[i]) for i in np.unique(segment_vrn) if i != 0] # list of tuple with object label and position 
+    # Filter SegementInfo to just the 
+    unique_vrn = np.unique(segment_vrn)
+    idx = []
+    for i in unique_vrn:
+      idx.append(SegmentInfo['pos'].index(i))
+    Info_keys = SegmentInfo.keys()
+    SegmentInfo2 = dict()
+    for k in Info_keys:
+      SegmentInfo2[k] = [SegmentInfo[k][i] for i in Info_keys]
+
+    # == display
+    vr_n = [(pred_class[pred_id.index(i)], id_dict_pos[i]) for i in unique_vrn if i != 0] # list of tuple with object label and position 
     # create output text
     text = []
     vr_n_l = len(vr_n) > 0
@@ -413,7 +423,7 @@ class MobileCam(Midas, Detector):
     tts.save('1.wav') 
     sound_file = '1.wav'  
 
-    return Audio(sound_file, autoplay=True), text, initial_out_img, SegmentInfo
+    return Audio(sound_file, autoplay=True), text, initial_out_img, SegmentInfo, SegmentInfo2
 
   def MultOut_RealTime(self): #disp_pred=False
     # start streaming video from webcam
