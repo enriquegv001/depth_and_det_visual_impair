@@ -385,7 +385,7 @@ class MobileCam(Midas, Detector):
 
     # Filter SegementInfo to MMOR prediciton
     unique_vrn = np.unique(segment_vrn)
-    idx = [SegmentInfo['pos'].index(i) for i in unique_vrn if i!=0]
+    idx = [SegmentInfo['id'].index(i) for i in unique_vrn if i!=0]
     Info_keys = SegmentInfo.keys()
     SegmentInfo2 = dict()
     for k in Info_keys:
