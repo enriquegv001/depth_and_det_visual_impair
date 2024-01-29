@@ -275,7 +275,7 @@ class Midas:
       proximity_out[proximity_out == p3] = 255 # very near
       #just the display is working for rotation, but is programed for 180° rot
       #cv2_imshow(np.rot90(proximity_out, 2))
-      cv2_imshow(proximity_out)  
+      #cv2_imshow(proximity_out)  
       
       return proximity_out, initial_out_img 
 
@@ -383,15 +383,13 @@ class MobileCam(Midas, Detector):
         id_dict_pos[k] = max_c
         SegmentInfo['pos'].append(max_c) # add info for later evaluation
 
-    # Filter SegementInfo to just the 
+    # Filter SegementInfo to MMOR prediciton
     unique_vrn = np.unique(segment_vrn)
-    idx = []
-    for i in unique_vrn:
-      idx.append(SegmentInfo['pos'].index(i))
+    idx = [SegmentInfo['pos'].index(i) for i in unique_vrn if i!=0]
     Info_keys = SegmentInfo.keys()
     SegmentInfo2 = dict()
     for k in Info_keys:
-      SegmentInfo2[k] = [SegmentInfo[k][i] for i in Info_keys]
+      SegmentInfo2[k] = [SegmentInfo[k][i] for i in idx]
 
     # == display
     vr_n = [(pred_class[pred_id.index(i)], id_dict_pos[i]) for i in unique_vrn if i != 0] # list of tuple with object label and position 
