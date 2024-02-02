@@ -53,6 +53,7 @@ Heredity class from parents Detector and Midas. The MobileCam class combines fun
 
 ## Appendix
 To review code used for the metrics evaluation go to [ROC metric](https://colab.research.google.com/drive/15GTlJY9t8bBynD9J1t3Wbicr0LUliUQo?usp=sharing) or [Data Analysis](https://drive.google.com/drive/folders/1SbmPn5g3XOIPGsRli0V_6iKCSqI8Pluf?usp=sharing)
+
 To review steps while developing the application go to [Notes](https://docs.google.com/document/d/1qtE4VyLfn3PcRqplUKndpF1xBIr7pq7kUCPXei2QN0Y/edit?usp=sharing)
 
 
