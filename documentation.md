@@ -52,8 +52,8 @@ Heredity class from parents Detector and Midas. The MobileCam class combines fun
 ```MultOut_RealTime(self)``` Processes real-time video frames and returns information about relevant objects, their positions, and depth-aware representation. And returns ```Audio``` Audio file (with detected object positions).
 
 ## Appendix
-For more information about evaluation metrics: https://colab.research.google.com/drive/15GTlJY9t8bBynD9J1t3Wbicr0LUliUQo?usp=sharing
-For more information on the notes for developing the application: https://docs.google.com/document/d/1qtE4VyLfn3PcRqplUKndpF1xBIr7pq7kUCPXei2QN0Y/edit?usp=sharing
+To review code used for the metrics evaluation go to [ROC metric](https://colab.research.google.com/drive/15GTlJY9t8bBynD9J1t3Wbicr0LUliUQo?usp=sharing) or [Data Analysis](https://drive.google.com/drive/folders/1SbmPn5g3XOIPGsRli0V_6iKCSqI8Pluf?usp=sharing)
+To review steps while developing the application go to [Notes](https://docs.google.com/document/d/1qtE4VyLfn3PcRqplUKndpF1xBIr7pq7kUCPXei2QN0Y/edit?usp=sharing)
 
 
 
